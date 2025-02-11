@@ -1,0 +1,500 @@
+{% extends 'profile-main.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize%}
+{% block title %} {{ request.user.first_name }} {{ request.user.last_name }} {% endblock%}
+{% block content %}
+<style>
+  /* popup styling  */
+/* Popup container (hidden by default) */
+.popup {
+  display: none; /* Hidden by default */
+  /*position: fixed; /*Ensures the popup stays on the screen*/
+  top: 10px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff; /* rgba(0, 0, 0, 0.5); Dark overlay */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Higher z-index to appear on top of other elements */
+}
+
+/* Popup content box */
+.popup-content {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  max-width: 100%;
+  width: 100%;
+  z-index: 10000; /* Ensures the content box stays above the overlay */
+}
+/* #cc922e */ 
+/* #1563df blue color */
+
+.popup-content input {
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.popup-content button {
+  margin: 5px;
+  padding: 8px 16px;
+  background: #1563df;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.popup-content button:hover {
+  background: #1563df;
+}
+</style>
+<main id="main" class="main">
+    
+    <div class="pagetitle">
+      <h1>{{ request.user.first_name }} {{ request.user.last_name }}</h1>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% else %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          everyday you log into your account you earn 10 points
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+    </div><!-- End Page Title -->
+
+    <section class="section profile">
+      <div class="row">
+        
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              <h2>{{ request.user.first_name }} {{ request.user.last_name }}</h2>
+              <h3>Total Points: {{ creator.total_points }}</h3>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                for every view you get from challenges you participate in  you earn one point 
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                points value vary from 1000 point equal to ksh.10 to ksh.50 depending on challenges value
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <h3>Active Challenges Participating In: {{challenges_count}}</h3></div>
+          </div>
+          <div class="card" id="refferal-links">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              {% if not refferal_code.code %}
+              <a class="icon" href="{% url 'profile' %}?create_refferal_code=create_refferal_code">Generate Refferal Code</a>
+              {% else %}
+              <p><b style="color: #000;;">Your Refferal Code: {{refferal_code.code }}</b></p>
+              <div class="form-group" onclick="showPopup(event)" style="cursor: pointer; align-items: center;">
+                <a href="">refferal link for creators</a>
+             </div>
+             <div class="form-group" onclick="showPopupBusiness(event)" style="cursor: pointer; align-items: center;">
+              <a href="">refferal link for businesses/brands</a>
+             </div>
+              {% endif %}
+              
+          </div>
+          <div>
+            <div id="popup" class="popup">
+                <div class="popup-content">
+                    <p>Share this refferal link with creators to join:</p>
+                    <input type="text" id="share-url" value="{{request.scheme}}://{{request.get_host}}/register-user/?add_creator=add_creator&refferal_code={{refferal_code.code }}" readonly />
+                    <button onclick="copyToClipboard()">Copy</button>
+                    <button onclick="closePopup()">Close</button>
+                </div>
+            </div>
+            <div id="popupBusiness" class="popup">
+              <div class="popup-content">
+                  <p>Share this refferal link with businesses/brands to join:</p>
+                  <input type="text" id="share-url-business" value="{{request.scheme}}://{{request.get_host}}/register-user/?pricing_plan=fremium&refferal_code={{refferal_code.code }}" readonly />
+                  <button onclick="copyBusinessToClipboard()">Copy</button>
+                  <button onclick="closeBusinessPopup()">Close</button>
+              </div>
+          </div>
+        </div>
+
+        </div>
+          {% if staff_businesses %}
+          {% for staff in  staff_businesses %}
+          <div class="card">
+              <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+                <a class="icon" href="{% url 'dashboard' staff.business.slug %}">visit</a>
+                <h2><a href="{% url 'dashboard' staff.business.slug %}" style="color: #000;;">{{ staff.business.business_name }}</a></h2>
+            </div>
+
+          </div>
+          {% endfor %}
+          {% endif %}
+          
+
+        </div>
+
+        <div class="col-xl-8">
+          {% if  creator  %}
+          <div class="card">
+            <div class="card-body pt-3">
+              <!-- Bordered Tabs -->
+              <ul class="nav nav-tabs nav-tabs-bordered">
+                
+                <li class="nav-item">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-edit">Challenges</button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings"> Businesses </button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#Points">Points</button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#refferal-codes"> Refferals </button>
+                </li>
+
+              </ul>
+              <div class="tab-content pt-2">
+                
+                <div class="tab-pane fade show active profile-edit pt-3" id="profile-edit">
+
+                    <div class="row">
+                        <div class="col-lg-12">
+                
+                          <div class="card">
+                            <div class="card-body overflow-auto">
+                              <h5 class="card-title">Active Challenges</h5>
+                              
+                              <!-- Table with stripped rows -->
+                              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                click on challenge name to view full challenge description
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                              </div>
+                              <table class="table datatable">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Business Name</th>
+                                    <th scope="col">Challenge</th>
+                                    <th scope="col">Rewards</th>
+                                    <th scope="col">Participating</th>
+                                    <th scope="col">Last Day Of Challenge</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  {% for challenge in challenges %}
+                                  <tr>
+                                    <td scope="row">{{challenge.business.business_name}}</td>
+                                    <th scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" style="cursor: pointer">{{challenge.challenge_name}}</a></th>
+                                    <td scope="row">{{challenge.challenge_reward}}</td>
+                                    <td scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" title="view"> {% if challenge.closed %}Yes {% else %}No {%  endif %}</td>
+                                    <td  scope="row">{{ challenge.last_day_of_the_challenge}}</td>
+                                  </tr>
+                                  {% endfor %}
+                                  
+                                </tbody>
+                              </table>
+                              <!-- End Table with stripped rows -->
+                
+                            </div>
+                          </div>
+                
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="tab-pane fade pt-3" id="profile-settings">
+
+                  <div class="row">
+
+                    <div class="col-lg-12">
+                
+                      <!-- businesss section  -->
+                      <div class="card">
+                        <div class="card-body">
+                          <h5 class="card-title">Businesses you've participated a challenge  from</h5>
+                          
+                          <div class="accordion accordion-flush" id="faq-group-2">
+                            {% for business in businesses  %}
+                            <div class="accordion-item">
+                              <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" data-bs-target="#faqsTwo-{{ business.id}}" type="button" data-bs-toggle="collapse">
+                                  {{ business.business_name }}
+                                </button>
+                              </h2>
+                              <div id="faqsTwo-{{ business.id}}" class="accordion-collapse collapse" data-bs-parent="#faq-group-2">
+                                <div class="accordion-body">
+                                  <div class="row">
+                                    <div class="col-lg-12">
+                            
+                                      <div class="card">
+                                        <div class="card-body overflow-auto">
+                                          <h5 class="card-title">Current Active Challenges</h5>
+                                          <!-- Table with stripped rows -->
+                                          <table class="table datatable">
+                                            <thead>
+                                              <tr>
+                                                <th scope="col">Business Name</th>
+                                                <th scope="col">Challenge</th>
+                                                <th scope="col">Rewards</th>
+                                                <th scope="col">Participating</th>
+                                                <th scope="col">Last Day Of Challenge</th>
+                                              </tr>
+                                            </thead>
+                                            <tbody>
+                                              {% for challenge in business.challenges_set.all %}
+                                              <tr>
+                                                <td scope="row">{{challenge.business.business_name}}</td>
+                                                <th scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" style="cursor: pointer">{{challenge.challenge_name}}</a></th>
+                                                <td scope="row">{{challenge.challenge_reward}}</td>
+                                                <td scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" title="view"> {% if challenge.closed %}Yes {% else %}No {%  endif %}</td>
+                                                <td  scope="row">{{ challenge.last_day_of_the_challenge}}</td>
+                                              </tr>
+                                              {% endfor %}
+                                              
+                                            </tbody>
+                                          </table>
+                                        </div>
+                                      </div>
+                            
+                                    </div>
+                                  </div>
+                                  
+                                </div>
+                              </div>
+                            </div>
+                            {% endfor %}
+                
+                          </div>
+                
+                        </div>
+                      </div><!-- End business you have participated challenge with -->
+                
+                    </div>
+                
+                  </div>
+                </div>
+
+                <!-- points earned -->
+                <div class="tab-pane fade profile-overview" id="Points">
+                  <div class="row">
+                      <div class="col-lg-12">
+              
+                        <div class="card">
+                          <div class="card-body overflow-auto">
+                            <h5 class="card-title">Points Earned</h5>
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                              for every view you get from challenges you participate in  you earn one point 
+                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                              points value vary from 1000 point equal to ksh.10 to ksh.50 depending on challenges value
+                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <!-- Table with stripped rows -->
+                            <table class="table datatable">
+                              <thead>
+                                <tr>
+                                  <th scope="col">Challenge</th>
+                                  <th scope="col">Total Views</th>
+                                  <th scope="col">Points Earned</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for point in points %}
+                                <tr>
+                                  <td>{{ point.challenge}}</td>
+                                  <th>{{point.total_views}}</th>
+                                  <th>{{point.points_earned}}</th>
+                                  
+                                </tr>
+                                {% endfor %}
+                                
+                              </tbody>
+                            </table>
+                            <!-- End Table with stripped rows -->
+              
+                          </div>
+                        </div>
+              
+                      </div>
+                  </div>
+                </div>
+
+                <!-- refferal  -->
+                <div class="tab-pane fade pt-3" id="refferal-codes">
+                  <div class="card">
+                    {% if refferal_code %}
+                    <div class="card-body overflow-auto">
+                      
+                      <h5 class="card-title">Your Refferal Code: {{refferal_code.code }}</h5>
+                      <a href="#refferal-links">refferal links</a>
+                     
+                    </div>
+                    {% else %}
+                    <a href="{% url 'profile' %}?create_refferal_code=create_refferal_code">generate refferal code </a>
+                    {% endif %}
+                    <div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+            
+                      <div class="card">
+                        <div class="card-body overflow-auto">
+                          <h5 class="card-title">Businesses You Reffered</h5>
+                          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            for every business you reffer you earn points equivalent to ksh.1,000 monthly deposited to you account at the end of the month and as long as the business is still active on our platform
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <!-- Table with stripped rows -->
+                          <table class="table datatable">
+                            <thead>
+                              <tr>
+                                <th scope="col">Business</th>
+                                <th scope="col">Date Joined</th>
+                                <th scope="col">Monthly Income</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for business in businesses_reffered %}
+                              <tr>
+                                <td>{{ business.business.name }}</td>
+                                <th>{{business.date_joined}}</th>
+                                <th>ksh.1,000</th>
+                              </tr>
+                              {% endfor %}
+                              
+                            </tbody>
+                          </table>
+                          <!-- End Table with stripped rows -->
+            
+                        </div>
+                      </div>
+            
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-12">
+            
+                      <div class="card">
+                        <div class="card-body overflow-auto">
+                          <h5 class="card-title">Creators You Reffered</h5>
+                          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            for every creator you reffer you earn 10,000 points monthly deposited to you account at the end of the month and as long as the creator participates in challenges on the platform
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            all points are reddemmable whichever time you want 
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                          <!-- Table with stripped rows -->
+                          <table class="table datatable">
+                            <thead>
+                              <tr>
+                                <th scope="col">Challenge</th>
+                                <th scope="col">Total Views</th>
+                                <th scope="col">Points Earned</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for creator in creators_reffered %}
+                              <tr>
+                                <td>{{ creator.user.first_name}}</td>
+                                <th>{{creator.date_joined}}</th>
+                                <th>10,000</th>
+                                
+                              </tr>
+                              {% endfor %}
+                              
+                            </tbody>
+                          </table>
+                          <!-- End Table with stripped rows -->
+            
+                        </div>
+                      </div>
+            
+                    </div>
+                  </div>
+                </div>
+                <!-- end refferal  -->
+
+              </div><!-- End Bordered Tabs -->
+
+            </div>
+          </div>
+          {% else %}
+          <div class="col-xxl-4 col-md-4">
+            <div class="card info-card revenue-card">
+              <div class="card-body">
+                <h5 class="card-title"></h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="ps-3">
+                    <h6><a href="{% url 'add_creator' %}">Become a Creator</a></h6>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+</main><!-- End #main -->
+<script>
+  function showPopup(event) {
+      event.preventDefault(); // Prevent default link behavior
+      const popup = document.getElementById('popup');
+      popup.style.display = 'flex'; // Show the popup
+  }
+  
+  function closePopup() {
+      const popup = document.getElementById('popup');
+      popup.style.display = 'none'; // Hide the popup
+  }
+  
+  function copyToClipboard() {
+      const urlField = document.getElementById('share-url');
+      urlField.select(); // Select the text
+      document.execCommand('copy'); // Copy the text to the clipboard
+      alert('URL copied to clipboard!');
+  }
+</script>
+
+<script>
+  function showPopupBusiness(event) {
+      event.preventDefault(); // Prevent default link behavior
+      const popup = document.getElementById('popupBusiness');
+      popup.style.display = 'flex'; // Show the popup
+  }
+  
+  function closeBusinessPopup() {
+      const popup = document.getElementById('popupBusiness');
+      popup.style.display = 'none'; // Hide the popup
+  }
+  
+  function copyBusinessToClipboard() {
+      const urlField = document.getElementById('share-url-business');
+      urlField.select(); // Select the text
+      document.execCommand('copy'); // Copy the text to the clipboard
+      alert('URL copied to clipboard!');
+  }
+</script>
+
+{% endblock %}

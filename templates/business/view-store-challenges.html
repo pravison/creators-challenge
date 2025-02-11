@@ -1,0 +1,230 @@
+{% extends 'business/main.html' %}
+{% load static %}
+{% load humanize%}
+{% block title %} {{ challenge.challenge_name}} {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+    {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+    {% endif %}
+    <div class="pagetitle">
+      <h1>{{ challenge.challenge_name}}</h1>
+      <nav>
+        <ol class="breadcrumb">
+          {% if staff %}
+          <li class="breadcrumb-item"><a href="{% url 'store_challenges' business.slug %}">View Challenges</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'create_store_challenge' business.slug %}">Create Challenge</a></li>
+          {% endif %}
+          <li class="breadcrumb-item"><a href="{% url 'profile' %}">Profile</a></li>
+          <li class="breadcrumb-item active">Challenge</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section profile">
+      <div class="row">
+        <div class="col-xl-4">
+
+          <div class="card">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              <h2>{{ challenge.challenge_name}}</h2>
+              <p>Last Day of Challenge: {{ challenge.last_day_of_the_challenge}}</p>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                the earllier you submit your video the more views you get the more points you earn and the more you stand a chance to win the challenge
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <h3>Challenge Closed: {% if challenge.closed %} Yes {% else %} No {% endif %}</h3>
+              <h6><a href="{% url 'submit_video_url' challenge.id %}" style="cursor: pointer; color: blue;">Submit video link</a></h6>
+              
+            </div>
+          </div>
+
+        </div>
+
+        <div class="col-xl-8">
+
+          <div class="card">
+            <div class="card-body pt-3">
+              <!-- Bordered Tabs -->
+              <ul class="nav nav-tabs nav-tabs-bordered">
+
+                <li class="nav-item">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-overview">Overview</button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-edit">Paticipants</button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings"> Winners </button>
+                </li>
+
+              </ul>
+              <div class="tab-content pt-2">
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                  for every view you get on the challenge video earns you a one point which you can reddeem to cash whenever you want
+                  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <h6><a href="{% url 'submit_video_url' challenge.id %}" style="cursor: pointer; color: blue;">Submit video url</a></h6>
+                <div class="tab-pane fade show active profile-overview" id="profile-overview">
+                  <h5 class="card-title">{{ challenge.challenge_name}}</h5>
+                  <p class="small fst-italic">Last Day of Challenge: {{ challenge.last_day_of_the_challenge}}</p>
+
+                  <h5 class="card-title">Details</h5>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label ">Total Challenge Reward</div>
+                    <div class="col-lg-9 col-md-8">{{ challenge.challenge_reward }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Target Winners</div>
+                    <div class="col-lg-9 col-md-8">{{ challenge.target_winners}}</div>
+                  </div>
+                  {% if challenge.video_url %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Video Link</div>
+                    <div class="col-lg-9 col-md-8"><a href="{{ challenge.video_url}}">{{ challenge.video_url}}</a></div>
+                  </div>
+                  {% endif %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Challenge Brief</div>
+                    <div class="col-lg-9 col-md-8">{{ challenge.description}}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Challenge Rules</div>
+                    <div class="col-lg-9 col-md-8">{{ challenge.rules}}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Date Created</div>
+                    <div class="col-lg-9 col-md-8">{{ challenge.date_created}}</div>
+                  </div>
+
+
+                  {% if staff %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Created By</div>
+                    <div class="col-lg-9 col-md-8">{{ challenge.created_by}}</div>
+                  </div>
+                  {% endif %}
+
+                </div>
+
+                <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
+                  <div class="row">
+                    <div class="col-lg-12">
+            
+                      <div class="card">
+                        <div class="card-body overflow-auto">
+                          <h5 class="card-title">Participants</h5>
+                          <!-- Table with stripped rows -->
+                          <table class="table datatable">
+                            <thead>
+                              <tr>
+                                <th scope="col">Creator</th>
+                                <th scope="col">Video Link</th>
+                                <th scope="col">Total Views</th>
+                                <th scope="col">Earned Points</th>
+                                <!-- <th scope="col">Potential Income</th> -->
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for participant in participants %}
+                              <tr>
+                                <td>{{participant.creator.user.first_name}}</td>
+                                <th><a href="{{ participant.video_url}}">{{ participant.video_url}}</a></th>
+                                <th>{{ participant.total_views}}</th>
+                                <th>{{ participant.points_earned}}</th>
+                                <!-- <th>{{ participant.total_views}}</th> -->
+                                
+                              </tr>
+                              {% endfor %}
+                              
+                            </tbody>
+                          </table>
+                          <!-- End Table with stripped rows -->
+            
+                        </div>
+                      </div>
+            
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tab-pane fade pt-3" id="profile-settings">
+                  {% if challenge.winners.first %}
+                    {% for winner in challenge.winners.all %}
+                    <div class="row mb-3">
+                      <label for="fullName" class="col-md-3 col-lg-3 col-form-label">{{winner.code}}</label>
+                      <div class="col-md-8 col-lg-3">
+                        {{winner.customer.user.first_name}} {{winner.customer.user.last_name}}
+                      </div>
+                      {% if staff %}
+                      <div class="col-md-8 col-lg-6">
+                        {{winner.customer.user.email}}
+                      </div>
+                      {% endif %}
+                    </div>
+                    {% endfor %}
+                  {% else %}
+                  <div class="row mb-3">
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                      Winners havent been announced yet?
+                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="tab-pane fade pt-3" id="profile-change-password">
+                  <!-- Change Password Form -->
+                  <form>
+
+                    <div class="row mb-3">
+                      <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="password" type="password" class="form-control" id="currentPassword">
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <label for="newPassword" class="col-md-4 col-lg-3 col-form-label">New Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="newpassword" type="password" class="form-control" id="newPassword">
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <label for="renewPassword" class="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
+                      <div class="col-md-8 col-lg-9">
+                        <input name="renewpassword" type="password" class="form-control" id="renewPassword">
+                      </div>
+                    </div>
+
+                    <div class="text-center">
+                      <button type="submit" class="btn btn-primary">Change Password</button>
+                    </div>
+                  </form><!-- End Change Password Form -->
+
+                </div>
+
+              </div><!-- End Bordered Tabs -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+</main><!-- End #main -->
+  {% endblock %}

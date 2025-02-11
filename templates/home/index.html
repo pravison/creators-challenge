@@ -1,0 +1,168 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %} - Get paid to create. {% endblock %}
+{% block keyword %}{% endblock %}
+{% block description %}{% endblock %}
+
+{% block content %}
+
+<!-- Banner Area -->
+<section class="banner_area banner_a2 " style="justify-content: center; ">
+    <img src="{% static 'images/banner-bg-style-2.png' %}" alt="" class="banner_bg">
+    <div class="container text-centre" >
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+
+            {% endfor %}
+        {% endif %}
+        <h1 class="wow fadeIn" style="color: white; font-size: xxx-large;">Get paid to create. </h1>
+        <p class="wow fadeIn" data-wow-delay="0.2s">Challenge will send paid content opportunities directly to your whatsapp</p>
+        <a href="{% url 'register_user' %}?add_creator=add_creator" class="theme_btn wow fadeIn" data-wow-delay="0.4s">Become a Creator</a>
+        <a href="{% url 'business_landing_page' %}" class="theme_btn wow fadeIn" data-wow-delay="0.4s">For Businesses</a>
+    </div>
+</section>
+<!-- Banner Area -->
+
+<!-- About us -->
+<section class="agency_task at_2" id="about">
+    <div class="row text-centre">
+        <div class="col-lg-7 wow fadeInLeft">
+            <div class="agency_contant">
+                <h5>Founded by Creators</h5>
+                <div class="agency_contant">
+                    <h2>Our misssion is to help creators earn more doing what they love</h2>
+                    <p>
+                        Are you a content creator looking for the next brand deal? or paid posts?. Are you tired for searching for opportunities that just seem out of reach,
+                    </p><br>
+                    <p>
+                        you are in luck because at challenge is where oppotunities find you.
+                        our cutting-edge platfom connects creators just like you with businesses looking for fresh and inovative content
+                        and the best part it happens right on your phone through whatsapp 
+                    </p><br>
+                    <p>
+                        with challenge you can forget the endless outreach to businesses,
+                        you will receive notification for paid content opportunities that are tailored to your skills and interests.
+                    </p><br>
+                    <p>
+                        from health and fitness to fashion to gaming and food,
+                    whatever niche you are in Challenge has exciting paid content opportunity for you.
+                    </p>
+                    <p><br>
+                    Challenge allows you to grow your content portfolio and your brand network. 
+                    Challenge is where creators and business connect 
+                    </p>
+                    <p><br>
+                        sign up now and turn your passion into your proffession
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5 agency_task_img wow fadeInRight mt-20">
+            <img src="{% static 'images/left_bg-2.jpeg' %}" alt="">
+            <img src="{% static 'images/creators-1.jpeg' %}" style="margin-top: 2px;" alt="">
+        </div>
+    </div>
+    <img src="{% static 'images/fouc_left_.png' %}" class="layer focus_bg" data-depth="0.35" alt="">
+</section>
+<!-- Agency Task Area End -->
+
+<!-- how it works section -->
+<section class="service_icon_area sia_2" id="how-it-works">
+    <div class="container">
+        <h2>How it Works</h2>
+        <div class="carousel slide si_carousel" data-ride="carousel">
+            <div class="carousel-inner">
+                <div class="carousel-item active">
+                    <div class="row">
+                        <div class="col-xl-3 col-md-6 wow">
+                            <div class="single_box">
+                                <a href="#how-it-works" class="heding"> 1. Create an Account</a>
+                                <p>Sign up on our platform, tell us a little bit about youself and what type of content you create.</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 wow">
+                            <div class="single_box">
+                                <a href="#how-it-works" class="heding">2. Browse Opportunities</a>
+                                <p>You can handpick opportunites that excites you </p>
+                                
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 wow">
+                            <div class="single_box">
+                                <a href="#how-it-works" class="heding">3. Create Content</a>
+                                <p>simply click on an opportunity read the brief create content and submit</p>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-md-6 wow">
+                            <div class="single_box">
+                                <a href="#services" class="heding">4. Get Paid</a>
+                                <p>here is the fun part you get paid and get to build realtionship with brands you are creating content for</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <img src="{% static 'images/agency-banner-bg-style-3.png' %}" alt="" class="bg_style" data-depth="0.10">
+</section>
+<!-- End  -->
+
+<section class="get_touch">
+    <div class="container">
+        <p>Why wait while you can start earning today.</p>
+        <a href="{% url 'register_user' %}?add_creator=add_creator" class="theme_btn">Become a Creator </a>
+    </div>
+    <span></span>
+</section>
+
+<!-- FAQ -->
+<section class="faq_area">
+    <div class="container">
+        <h6>Frequently Asked Questions</h6>
+        
+        
+        <div class="row">
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How much do i earn?</h4>
+                <p>Earning vary from Challenge vary from gig to gig plus the points you earn from views generated.
+                    to maximize your earnings get more views and win more challenges
+                </p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How do I get paid?</h4>
+                <p>payment are made through the platforms secure payment system. once the challenge is closed payment are processed and send to you using the payment method you've provided </p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>Do I need certain amount of followers to join?</h4>
+                <p>No, their is no miminum follower requirement to join challenge. The platform welcomes creators of all levels, enabling anyone to earn from content opportunities.</p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How do I earn point ?</h4>
+                <p>Every view you get on the videos submitted for the challenges you've participated in, equals to 1 point, you can reddeem the points into cash whenever you want.</p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>Is My payment Guaranted?</h4>
+                <p>Payment for promotions are subject to succesful completion of the requirements set for each specific gig. its important to fulfil, the agrred-upon terms.</p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>Do I have to pay to join?</h4>
+                <p>No,  joining Challenge is free. You can sign up and explore the platform's various opportunities and brand deals without upfront fees.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End FAQ  -->
+
+{% endblock %}

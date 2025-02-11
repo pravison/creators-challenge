@@ -1,0 +1,132 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %} - Bring More Customers to Your Store and Keep Them Coming Back!{% endblock %}
+{% block keyword %}{% endblock %}
+{% block description %}{% endblock %}
+
+{% block content %}
+
+<!-- Banner Area -->
+<section class="banner_area banner_a2">
+    <img src="{% static 'images/banner-bg-style-2.png' %}" alt="" class="banner_bg">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+
+            {% endfor %}
+        {% endif %}
+        <h1 class="wow fadeIn" style="color: white; font-size: xxx-large;">Challenge Your Content Limits </h1>
+        <p class="wow fadeIn" data-wow-delay="0.2s">
+            <b>Ignite Your Brand's story with creators challanges</b><br>
+            At Challnege, we transform they way brands tap into creative energy. Our platform connects you with digital creators who compete to deliver innovative 
+            content; giving your brand fresh, organic ideas without overspending
+        </p>
+        <a href="{% url 'register_user' %}?pricing_plan=fremium" class="theme_btn wow fadeIn" data-wow-delay="0.4s">Get Started Today</a>
+        <a href="{% url 'index' %}" class="theme_btn wow fadeIn" data-wow-delay="0.4s">For creators</a>
+    </div>
+</section>
+<!-- Banner Area -->
+<!-- How it works -->
+<section class="seo_insights" id="how-it-works">
+    <div class="row">
+        
+        <div class="col-lg-7">
+            <div class="insights_contant wow fadeInRight">
+                <h2>How It Works: Unleashing Creativity & Amplifying Impact</h2>
+                <div class="list_line">
+                    <h6><b>Step 1: Launch Your Challenge</b><br/>Define your vision by creating a clear brief, setting your budget, and outlining guidelines tha speaks to your target audience, once you hit create our system handles the res, sparking a wave of creative submissions</h6> <br/>
+                    <h6><b>Step 2: Creators Rise to the Occasion</b><br>Watch as a diverse community of creators respond with bold, inventive content, Each entry brings a uniques perspective, offering you a treasure trove of ideas to choose from.</h6> <br/>
+                    <h6><b>step 3: Select and Scale the Winners</b><br/>Review the entries, select the content that resonate most with your brand, and invest only in the ideas that delive measurable results. Then, ramp up your impact with target promotions that boost the reach of your top performers.</h6> <br/>
+                </div>
+                
+            </div>
+
+        </div>
+        <div class="col-lg-5 recovered_img wow fadeInLeft">
+            <img src="{% static 'images/steptwofinal.webp' %}" alt="">
+        </div> 
+    </div>
+</section>
+<!-- End  -->
+
+<!-- benefits Section -->
+<section class="seo_insights" id="about">
+    <div class="row">
+        <div class="col-lg-5 recovered_img wow fadeInLeft">
+            <img src="{% static 'images/seo-recovered.png' %}" alt="">
+        </div>
+        <div class="col-lg-7">
+            <div class="insights_contant wow fadeInRight">
+                <h2>Your Creative Command Center</h2>
+                <p>Manage every submission and track performance in one intuitive dashboard.
+                    Anakyze trends, compare campaign metrics, and build a growing library of content that evolves with your barnd strategy.
+                </p>
+                <div class="list_line">
+                    <h6><b>Proven Results You Can Trust</b></h4>
+                    <h4><b>Thousands of Creators Engaged </b></h4> <br/>
+                    <h4><b>Dozens of Successful campaigns</b></h4> <br/>
+                    <h4><b>Millions of Organic Views Generated</b></h4> <br/>
+                </div>
+
+                
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End-->
+
+<section class="get_touch">
+    <div class="container">
+        <p>
+            <b>Ready to Revolutionize Your Content?</b><br>
+            Don't let great ideas pass you by, join Challenge and harness the power of creator-driven content to elavate your brand
+        </p>
+        <a href="{% url 'index' %}" class="theme_btn">Launch Your Challenge Today</a>
+    </div>
+    <span></span>
+</section>
+
+<!-- FAQ -->
+<section class="faq_area">
+    <div class="container">
+        <h6>Frequently Asked Questions</h6>
+        
+        
+        <div class="row">
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How do I kick off a challenge with Challenge?</h4>
+                <p>
+                    Sign up as a brand/business, create your campaign using our simple setup process, and start receiving creative submissions immediately.
+                </p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>What types of content challenges can I create?</h4>
+                <p>Whether you're looking for video, graphics, or written content, our flexible platform lets you tailor each challenge to fit your business needs</p>
+            </div>
+            <div class="col-md-6 faq_item">
+                <h4>Can I invite specific creators?</h4>
+                <p>Yes, you have an option to open your challenge to our entire creative community or handpick the creators you want to work with.</p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How is compensation handled?</h4>
+                <p>With Challenge, you invest only in content that drives results. Our model ensures you pay solely for work that makes an impact.</p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How can I track success of my challenge  ?</h4>
+                <p>Our analytics dashboard provides real-time insights into engagement and performance accross all submissions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End FAQ  -->
+
+{% endblock %}

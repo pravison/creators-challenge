@@ -1,0 +1,85 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<!-- popup register -->
+
+<!-- Get In Touch With Us Area -->
+<section class="get_touch_area" style="padding-top: 120px;">
+    <div class="row" style="justify-content: center;">
+        
+        <div class="col-lg-6 " >
+            <div class="row" style="justify-content: center;"><b>Welcome {{request.user.first_name}}</b></div>
+            <div class="row" style="justify-content: center;"><b>Finish Up Your Account</b></div>
+            <div class="from_area">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                <form class="from_main" action="{% url 'add_creator' %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            We will be sending challenge oppotunities to your Whatsapp phone number
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            make sure you number is written in international format without a plus sign ex. 254735465443
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <input type="number" name="phone_number" class="form-control" placeholder="Your Whatsapp Phone Number" required>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea type="text" name="brief_bio" class="form-control" placeholder="Tell us a brief bio about yourself"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea type="text" name="type_of_content" class="form-control" placeholder="Tell us about the type of content you create"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            Total Followers accross all your social channells
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <input type="text" name="total_followers" class="form-control" placeholder="Total Followers">
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" name="refferal_code" class="form-control" value="{{refferal_code}}" placeholder="Refferal Code" {% if refferal_code %} readonly {% endif %}>
+                    </div>
+                    
+                    <div class="form-group m-0 btn_g">
+                        <button class="theme_btn btn" id="registerButton" type="submit" >Save</button>
+                    </div>
+                </form>
+        </div>
+
+        
+    </div>
+</section>
+<!-- Get In Touch With Us Area -->
+<script>
+    // Add an event listener to the form submission
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginButton = document.getElementById('registerButton');
+        const form = loginButton.closest('form'); // Find the closest form element
+
+        if (form) {
+            form.addEventListener('submit', function () {
+                // Disable the button
+                loginButton.disabled = true;
+
+                // Update the button text
+                loginButton.textContent = "Saving  your info...";
+            });
+        }
+    });
+</script>
+{% endblock %}
