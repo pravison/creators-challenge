@@ -60,14 +60,14 @@ def stk_push_request(phone_number, amount, account_reference="Test Payment", tra
     ).decode("utf-8")
 
     payload = {
-        "BusinessShortCode": 174379, #settings.MPESA_CONFIG["SHORTCODE"],
-        "Password": 'MTc0Mzc5YmZiMjc5ZjlhYTliZGJjZjE1OGU5N2RkNzFhNDY3Y2QyZTBjODkzMDU5YjEwZjc4ZTZiNzJhZGExZWQyYzkxOTIwMjUwMjE3MjEzNzQ5', # password,
+        "BusinessShortCode": settings.MPESA_CONFIG["SHORTCODE"],
+        "Password": password,
         "Timestamp": timestamp,
         "TransactionType": "CustomerPayBillOnline",
-        "Amount": 2, # amount,
-        "PartyA": 254740562740, # phone_number,
-        "PartyB": 174379, #settings.MPESA_CONFIG["SHORTCODE"],
-        "PhoneNumber":254740562740, # phone_number,
+        "Amount": amount,
+        "PartyA": phone_number,
+        "PartyB": settings.MPESA_CONFIG["SHORTCODE"],
+        "PhoneNumber": phone_number,
         "CallBackURL": settings.MPESA_CONFIG["CALLBACK_URL"],
         "AccountReference": account_reference,
         "TransactionDesc": transaction_desc,
