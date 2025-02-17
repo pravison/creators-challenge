@@ -43,12 +43,12 @@ INSTALLED_APPS = [
     'home',
     'creators',
     'businesses',
+    'payment',
 
     # third party apps
     'tinymce',
     'django.contrib.humanize',
     'django.contrib.sitemaps',
-
 ]
  
 MIDDLEWARE = [
@@ -178,7 +178,17 @@ EMAIL_HOST_USER = 'shop.pasona@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'swet hrqf aexx ntqz'  # Your email's app password (not your email password!)
 DEFAULT_FROM_EMAIL = 'shop.pasona@gmail.com'  # Default 'from' email address
 
-
+#mpesa payment configuration
+MPESA_CONFIG = {
+    "CONSUMER_KEY": env("MPESA_CONSUMER_KEY"),
+    "CONSUMER_SECRET": env("MPESA_CONSUMER_SECRET"),
+    "SHORTCODE": env("MPESA_SHORTCODE"),
+    "PASSKEY": env("MPESA_PASSKEY"),
+    "INITIATOR_NAME": env("MPESA_INITIATOR_NAME"),
+    "INITIATOR_PASSWORD": env("MPESA_INITIATOR_PASSWORD"),
+    "CALLBACK_URL": env("MPESA_CALLBACK_URL"),
+    "ENV": env("MPESA_ENV"),
+}
 
 TINYMCE_DEFAULT_CONFIG = {
     'cleanup_on_startup': True,

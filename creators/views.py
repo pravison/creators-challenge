@@ -40,3 +40,4 @@ def add_creator(request):
         'refferal_code': refferal_code
     }
     return render(request, 'business/add-creator.html', context)
+
