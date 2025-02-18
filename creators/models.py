@@ -20,6 +20,10 @@ class Creator(models.Model):
     type_of_content = models.TextField(blank=True)
     social_media_accounts = models.ManyToManyField(SocialMediaAccount, blank=True)
     reffered_by = models.ForeignKey(User, blank=True, null=True, on_delete=models.SET_NULL, related_name='refferal')
+    willing_to_patner = models.BooleanField(default=False, help_text='checking if creator is willing to go in patnership') 
+    not_willing_to_patner = models.BooleanField(default=False, help_text='checking if creator is willing to go in patnership') 
+    willing_to_work = models.BooleanField(default=False, help_text='checking if creators is willing to create content for businesses on monthly retainor')
+    not_willing_to_work = models.BooleanField(default=False, help_text='checking if creators is willing to create content for businesses on monthly retainor') 
     date_joined = models.DateTimeField(auto_now_add = True)
     def __str__(self):
         return f'{self.user.first_name} {self.total_followers}'

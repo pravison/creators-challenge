@@ -40,6 +40,8 @@ def generate_unique_refferal_code():
 def profile(request):
     today = date.today()
     create_refferal_code=request.GET.get('create_refferal_code') or ''
+    patner=request.GET.get('patner') or ''
+    work=request.GET.get('work') or ''
     creator = Creator.objects.filter(user=request.user).first()
     staff_businesses = Staff.objects.filter(user=request.user)
     challenges = Challenge.objects.filter(closed=False)
@@ -51,7 +53,7 @@ def profile(request):
     businesses = []
 
     if creator:
-        businesses = Business.objects.filter(challenges__participants=creator).distinct().prefetch_related("challenges_set") #business user has participated in their challange
+        businesses = Business.objects.filter(challenges__participants=creator).distinct().prefetch_related("challenges") #business user has participated in their challange
         challenges_count = Challenge.objects.filter(closed=False, participants=creator).count()
 
         if LoyaltyPointForLogginIn.objects.filter(creator = creator).exists():
@@ -91,6 +93,32 @@ def profile(request):
             creator.total_points += total_points
             creator.save()
             last_update_instance.save()
+
+        if patner !='':
+            if patner == 'yes':
+                creator.willing_to_patner = True
+                messages.success(request, 'Great Choice! Now Business looking to patner with content creators will reach out to you')
+                creator.save()
+                return redirect('profile')
+            else:
+                creator.willing_to_patner = False
+                creator.not_willing_to_patner = True
+                messages.success(request, 'Your option has been updated successfully')
+                creator.save()
+                return redirect('profile')
+
+        if work !='':
+            if work == 'yes':
+                creator.willing_to_work = True
+                messages.success(request, 'Great Choice! Now Business looking for content creators to create content for them will reach out to you')
+                creator.save()
+                return redirect('profile')
+            else:
+                creator.willing_to_work = False
+                creator.not_willing_to_work = True
+                messages.success(request, 'Your option has been updated successfully')
+                creator.save()
+                return redirect('profile')
     
     if create_refferal_code != '':
         if not RefferralCode.objects.filter(user=request.user).exists():
@@ -103,7 +131,7 @@ def profile(request):
         else:
             messages.success(request, 'already have a refferal code!!! ')
 
-   
+
     
     context = {
         'challenges' : challenges,

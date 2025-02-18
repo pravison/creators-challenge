@@ -68,7 +68,7 @@ def stk_push_request(phone_number, amount, account_reference="Test Payment", tra
         "PartyA": phone_number,
         "PartyB": settings.MPESA_CONFIG["SHORTCODE"],
         "PhoneNumber": phone_number,
-        "CallBackURL": settings.MPESA_CONFIG["CALLBACK_URL"],
+        "CallBackURL": settings.MPESA_CONFIG["CALLBACK_URL"] + "stk-callback/",
         "AccountReference": account_reference,
         "TransactionDesc": transaction_desc,
     }

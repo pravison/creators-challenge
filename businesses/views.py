@@ -10,7 +10,7 @@ from .models import Business, Staff, Challenge,  LoyaltyPointsCategory, Challeng
 from home.models import RefferralCode
 from creators.models import Creator
 from .decorators import team_member_required
-
+from creators.functions import sendChallengeNotificationToCreators
 # Create your views here.
 
 @login_required(login_url="/login-user/")
@@ -120,7 +120,6 @@ def add_staff(request, slug):
     url=f'/register-user/?add_staff_to={slug}'
     return redirect(url)
 
-
 @login_required(login_url="/login-user/")
 @team_member_required
 def create_store_challenge(request, slug):
@@ -138,7 +137,7 @@ def create_store_challenge(request, slug):
         last_day_of_the_challenge = request.POST.get('last_day_of_the_challenge')
 
         challenge_reward = int(int(budget) * 0.90) 
-        Challenge.objects.create(
+        challenge=Challenge.objects.create(
             business=business,
             budget = budget,
             challenge_name = challenge_name,
@@ -150,6 +149,7 @@ def create_store_challenge(request, slug):
             created_by=staff
         )
         messages.success(request, 'challenge created successfuly')  
+        # sendChallengeNotificationToCreators(challenge)
         return redirect('store_challenges', slug)
     context = {
         'business': business,
@@ -219,6 +219,8 @@ def submit_challenge_video_url(request, id):
             creator = creator,
             video_url=video_url
         ) 
+        challenge.participants.add(creator)
+        challenge.save()
         messages.success(request, 'your challenge video submitted successfuly')  
         url = f'/business/{challenge.business.slug}/view-store-challenge/?challenge_id={id}'
         return redirect(url)
@@ -226,3 +228,6 @@ def submit_challenge_video_url(request, id):
         'challenge':challenge
     }
     return render(request, 'business/submit-challenge-video-url.html', context)
+
+
+

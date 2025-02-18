@@ -69,6 +69,33 @@
             </div>
             {% endfor %}
         {% else %}
+        {% if creator %}
+
+        {% if not creator.willing_to_patner and not creator.not_willing_to_patner %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <div>
+            <b>are you open to patner with a business?</b>
+            to patner means to into business together!
+            <br/>
+            <a href="{% url 'profile' %}?patner=yes">Yes</a>   <a href="{% url 'profile' %}?patner=no">No</a>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+
+        {% if not creator.willing_to_work and not creator.not_willing_to_work %}
+        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+          <div>
+            <b>are you open to work for a business?</b>
+            to work means to create content for a business and be paid either weekly or monthly depending on your agreement!
+            <br/>
+            <a href="{% url 'profile' %}?work=yes">Yes</a>  <a href="{% url 'profile' %}?work=no">No</a>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endif %}
+        
+        {% endif %}
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
           everyday you log into your account you earn 10 points
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -85,7 +112,8 @@
               <h2>{{ request.user.first_name }} {{ request.user.last_name }}</h2>
               <h3>Total Points: {{ creator.total_points }}</h3>
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                for every view you get from challenges you participate in  you earn one point 
+                for every view you get from challenges you participate in, you earn one point that is 
+                1 view = 1 point
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -229,7 +257,7 @@
                           <h5 class="card-title">Businesses you've participated a challenge  from</h5>
                           
                           <div class="accordion accordion-flush" id="faq-group-2">
-                            {% for business in businesses  %}
+                            {% for business in businesses %}
                             <div class="accordion-item">
                               <h2 class="accordion-header">
                                 <button class="accordion-button collapsed" data-bs-target="#faqsTwo-{{ business.id}}" type="button" data-bs-toggle="collapse">
@@ -256,14 +284,16 @@
                                               </tr>
                                             </thead>
                                             <tbody>
-                                              {% for challenge in business.challenges_set.all %}
+                                              {% for challenge in business.challenges.all %}
+                                              {% if not challenge.closed %}
                                               <tr>
                                                 <td scope="row">{{challenge.business.business_name}}</td>
                                                 <th scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" style="cursor: pointer">{{challenge.challenge_name}}</a></th>
                                                 <td scope="row">{{challenge.challenge_reward}}</td>
-                                                <td scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" title="view"> {% if challenge.closed %}Yes {% else %}No {%  endif %}</td>
+                                                <td scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" title="view">{% if creator in challenge.participants.all %}Yes {% else %}No {%  endif %}</td>
                                                 <td  scope="row">{{ challenge.last_day_of_the_challenge}}</td>
                                               </tr>
+                                              {% endif %}
                                               {% endfor %}
                                               
                                             </tbody>
