@@ -161,6 +161,34 @@
         </ul>
       </li><!-- End Challenges Nav -->
 
+      <li class="nav-item">
+        <a class="nav-link collapsed" data-bs-target="#content-creation-job" data-bs-toggle="collapse" href="#">
+          <i class="bi bi-tags"></i><span>Content Creation Job</span><i class="bi bi-chevron-down ms-auto"></i>
+        </a>
+        <ul id="content-creation-job" class="nav-content collapse " data-bs-parent="#sidebar-nav">
+          <li>
+            <a href="{% url 'content_creation_jobs' business.slug %}">
+              <i class="bi bi-circle"></i><span>Jobs</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'content_creation_jobs_requests' business.slug %}">
+              <i class="bi bi-circle"></i><span>Jobs Requests </span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'add_content_creation_job' business.slug %}">
+              <i class="bi bi-circle"></i><span>Create Job</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'creators' %}">
+              <i class="bi bi-circle"></i><span>Creators Lists</span>
+            </a>
+          </li>
+        </ul>
+      </li><!-- End Challenges Nav -->
+
 
       {% if request.user == business.owner %}
       <li class="nav-item">

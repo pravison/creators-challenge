@@ -1,0 +1,85 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<!-- popup register -->
+
+<!-- Get In Touch With Us Area -->
+<section class="get_touch_area" style="padding-top: 120px;">
+    <div class="row" style="justify-content: center;">
+        
+        <div class="col-lg-6 " >
+            <div class="row ms-1" style="justify-content: center;"><b>Hi {{request.user.first_name}}</b></div>
+            <div class="row ms-1" style="justify-content: center;"><b>Edit Your Account</b></div>
+            <div class="from_area">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                <form class="from_main" action="{% url 'edit_profile' creator.id %}" method="POST">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            We will be sending challenge oppotunities to your Whatsapp phone number
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div class="alert alert-warning alert-dismissible fade show col-11" role="alert">
+                            make sure you number is written in international format without a plus sign ex. 254735465443
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <div>
+                        <!-- <span class="col-1"><b>+</b></span> -->
+                        <input type="number" name="phone_number" class="form-control col-sm-6" value="{% if creator.phone_number %} {{creator.phone_number}} {% endif %}" placeholder="Your Whatsapp Phone Number ex. 254735465443" required/>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea type="text" name="brief_bio" class="form-control" placeholder="Tell us a brief bio about yourself">{% if creator.brief_bio %} {{ creator.brief_bio }} {% endif %} </textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <textarea type="text" name="type_of_content" class="form-control" placeholder="Tell us about the type of content you create">{% if creator.type_of_content %} {{creator.type_of_content}} {% endif %}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            Total Followers accross all your social channells
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        <input type="text" name="total_followers" class="form-control" value="{% if creator.total_followers %} {{creator.total_followers}}{% endif %}" placeholder="Total Followers">
+                    </div>
+                    <div class="form-group m-0 btn_g">
+                        <button class="theme_btn btn" id="registerButton" type="submit" >Save</button>
+                    </div>
+                </form>
+                
+
+        </div>
+
+        
+    </div>
+</section>
+<!-- Get In Touch With Us Area -->
+<script>
+    // Add an event listener to the form submission
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginButton = document.getElementById('registerButton');
+        const form = loginButton.closest('form'); // Find the closest form element
+
+        if (form) {
+            form.addEventListener('submit', function () {
+                // Disable the button
+                loginButton.disabled = true;
+
+                // Update the button text
+                loginButton.textContent = "Saving  your info...";
+            });
+        }
+    });
+</script>
+{% endblock %}

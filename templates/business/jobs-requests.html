@@ -1,0 +1,76 @@
+{% extends 'business/main.html' %}
+{% load static %}
+{% load humanize%}
+{% block title %} Jobs Request {% endblock%}
+{% block content %}
+
+<main id="main" class="main">
+{% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
+    {% endfor %}
+{% endif %}
+
+    <div class="pagetitle">
+      <h1>Job Requests You Send or Received From Creators</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'dashboard' business.slug %}">Dashboard</a></li>
+          <li class="breadcrumb-item"><a href="{% url 'content_creation_jobs_requests' business.slug %}">Job Requests</a></li>
+          <li class="breadcrumb-item active">Data</li>
+          
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+      <div class="row">
+        <div class="col-lg-12">
+
+          <div class="card">
+            <div class="card-body overflow-auto">
+              <h5 class="card-title">Jobs Request</h5>
+              <!-- <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                to keep our platform running we take 10% of you bugdet  
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div> -->
+              <!-- Table with stripped rows -->
+              <table class="table datatable">
+                <thead>
+                  <tr>
+                    <th scope="col">Creator</th>
+                    <th scope="col">Job Type</th>
+                    <th scope="col">Monthly Pay</th>
+                    <th scope="col">Creator Phone Number</th>
+                    <th scope="col">Approve</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for job in job_requests %}
+                  <tr>
+                    <th scope="row"><a href="{% url 'creator_profile' job.creator.id %}" style="cursor: pointer" title="view creator profile">{{job.creator.user.first_name }} {{job.creator.user.last_name }}</a></th>
+                    <th scope="row">{{job.job.job_type }}</th>
+                    <td scope="row">{{job.job.monthly_pay }}</td>
+                    <td scope="row">{% if job.accepted_by_business and job.accepted_by_creator %}{{job.creator.phone_number }}{% else %} 254xxxxxxxx {% endif %}</td>
+                    <td  scope="row">{% if not job.accepted_by_creator %} awiting creator acceptance {% elif not job.accepted_by_business %}<a href="{% url 'content_creation_jobs_requests' business.slug %}?job_application_id={{job.id}}" style="cursor: pointer">Approve</a>{% else %} approved {% endif %}</td>
+                  </tr>
+                  {% endfor %}
+                  
+                </tbody>
+              </table>
+              <!-- End Table with stripped rows -->
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+</main><!-- End #main -->
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.db.models import Count
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import date, timedelta
@@ -6,8 +7,8 @@ from django.utils.text import slugify
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from datetime import date
-from businesses.models import Business, Staff, Challenge, ChallengeResult, LoyaltyPointForLogginIn, MonthlyRefferalPointsUpdate
-from creators.models import Creator
+from businesses.models import Business, Staff, Challenge, ChallengeResult, JobApplication, LoyaltyPointForLogginIn, ContentCreationJob, MonthlyRefferalPointsUpdate
+from creators.models import Creator, AccountMonetization, CreatorsSurvey
 # Create your views here.
 from django.shortcuts import render, redirect
 from django.core.mail import send_mail
@@ -49,12 +50,45 @@ def profile(request):
     businesses_reffered = Business.objects.filter(reffered_by=request.user)
     creators_reffered = Creator.objects.filter(reffered_by=request.user)
     refferal_code = RefferralCode.objects.filter(user=request.user).first()
+
+    job_requests = None
     challenges_count = 0
     businesses = []
-
+    monetization_progress = None
+    days_remaining = 29
+    challenges_remaining=14
     if creator:
+        job_requests =JobApplication.objects.filter(creator=creator, accepted_by_business=False).count()
         businesses = Business.objects.filter(challenges__participants=creator).distinct().prefetch_related("challenges") #business user has participated in their challange
         challenges_count = Challenge.objects.filter(closed=False, participants=creator).count()
+
+        monetization_progress = AccountMonetization.objects.filter(creator=creator).first()
+        if monetization_progress is None:
+            AccountMonetization.objects.create(
+                creator=creator,
+                login_update_date = today,
+                challenge_participation_update_date = today
+                )
+        else:
+            if monetization_progress.login_update_date < today and not monetization_progress.monetizable:
+                monetization_progress.percentage_login_progress += 1.667
+                if monetization_progress.percentage_login_progress < 50 :
+                    monetization_progress.average_percentage_progress += int(1.667)
+                monetization_progress.login_update_date = today
+                monetization_progress.save()
+            
+            days_remaining = int((50-monetization_progress.percentage_login_progress)/1.667)
+            if monetization_progress.percentage_login_progress >= 50:
+                days_remaining =0
+            challenges_remaining=int((50-monetization_progress.challenge_participation_progress)/3.334)
+            if monetization_progress.challenge_participation_progress >= 50:
+                challenges_remaining =0
+
+            if not monetization_progress.monetizable and   monetization_progress.average_percentage_progress > 100:
+                monetization_progress.average_percentage_progress = 100
+                monetization_progress.monetizable = True
+                monetization_progress.save()
+                
 
         if LoyaltyPointForLogginIn.objects.filter(creator = creator).exists():
             last_update_instance = LoyaltyPointForLogginIn.objects.filter(creator = creator).first()
@@ -112,7 +146,7 @@ def profile(request):
                 creator.willing_to_work = True
                 messages.success(request, 'Great Choice! Now Business looking for content creators to create content for them will reach out to you')
                 creator.save()
-                return redirect('profile')
+                return redirect('creators_survey_for_work', creator.id)
             else:
                 creator.willing_to_work = False
                 creator.not_willing_to_work = True
@@ -142,7 +176,11 @@ def profile(request):
         'points': points,
         'businesses_reffered': businesses_reffered,
         'creators_reffered': creators_reffered,
-        'refferal_code': refferal_code
+        'refferal_code': refferal_code,
+        'monetization_progress':monetization_progress,
+        'days_remaining': days_remaining,
+        'challenges_remaining': challenges_remaining,
+        'job_requests': job_requests
     }
     return render(request, 'home/profile.html', context)
 
@@ -328,3 +366,84 @@ def logout_user(request):
     return redirect('login_user')
 
     
+def jobs(request):
+    job_id = request.GET.get('job_id', '')
+    jobs = ContentCreationJob.objects.filter(position_filled=False).annotate(total_applications=Count('job_applications'))
+    
+    if job_id != '':
+        job = jobs.filter(id=job_id, position_filled=False).first()
+        if job is None:
+            messages.success(request, "Job applied is unavailable")
+        creator = Creator.objects.filter(user=request.user).first()
+        if creator is None:
+            messages.success(request, "Register first as creator to be able to apply")
+            messages.success(request, "visit your profile and click become creators")
+        if JobApplication.objects.filter(job=job, creator=creator).exists():
+            messages.success(request, "You've already applied for this job")
+        else:
+            JobApplication.objects.create(
+                job=job,
+                business = job.business, 
+                creator=creator,
+                accepted_by_creator = True
+                )
+            messages.success(request, "Congratulations Your Application Request has Been Successfully Send")
+
+    context = {
+        'jobs': jobs,
+    }
+    return render(request, 'home/jobs.html', context)
+
+    
+def creators(request):
+    job_id = request.GET.get('job_id', '')
+    creator_id = request.GET.get('creator_id', '')
+    creators_with_surveys = Creator.objects.prefetch_related('survey').all()
+
+    if job_id != '' and creator_id != '':
+        job = ContentCreationJob.objects.filter(id=job_id, position_filled=False).first()
+        if job is None:
+            messages.success(request, "Job applied is unavailable")
+        creator = Creator.objects.filter(id=creator_id).first()
+        if creator is None:
+            messages.success(request, "Creator could not be found")
+            messages.success(request, " try applying again")
+        if JobApplication.objects.filter(job=job, creator=creator).exists():
+            messages.success(request, "Request Already send")
+        else:
+            JobApplication.objects.create(
+                job=job,
+                business = job.business, 
+                creator=creator
+                )
+            messages.success(request, "Congratulations your hiring request has been successfully send to the creator")
+
+    context = {
+        'creators_with_surveys': creators_with_surveys,
+        'job_id': job_id
+    }
+    return render(request, 'home/creators.html', context)
+
+def job_requests(request):
+    job_application_id = request.GET.get('job_application_id', '')
+    creator = Creator.objects.filter(user=request.user).first()
+    if creator is None:
+        messages.success(request, "Register first as creator to be able to see Job requests you have")
+        messages.success(request, "visit your profile and click become creators")
+    jobs = JobApplication.objects.filter(creator=creator).order_by(-id)
+    
+    if job_application_id != '':
+        job_application = JobApplication.objects.filter(id=job_application_id, creator=creator).first()
+        if job_application is None:
+            messages.success(request, "Job application does not exists")
+        else:
+            job_application.accepted_by_creator = True
+            job_application.save()
+            messages.success(request, "Congratulations Your Application Acceptance has Been Successfully Send")
+            messages.success(request, "awaiting business approval")
+            return redirect('job_requests')
+    context = {
+        'jobs': jobs,
+        'creator':creator
+    }
+    return render(request, 'home/job-requests.html', context)   

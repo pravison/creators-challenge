@@ -1,0 +1,56 @@
+{% extends 'profile-main.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize%}
+{% block title %} {{ request.user.first_name }} {{ request.user.last_name }} {% endblock%}
+{% block content %}
+<main id="main" class="main">
+
+  <div class="pagetitle">
+    <h1>Creators</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'profile' %}">Profile</a></li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+  <section class="section">
+    <div class="row align-items-top">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        <!-- Card with an image on top -->
+        {% for creator in creators_with_surveys %}
+        {% with first_survey=creator.survey.all|first %}
+        <div class="card  ms-3 col-lg-4" style="padding: 5x;">
+          <div class="card-body">
+            <h5 class="card-title"><b>{{creator.user.first_name}} {{creator.user.last_name}}</b><br/><span>has {{creator.total_followers}} followers</span><br/><span>and is {% if creator.willing_to_work %} Open to work {% else %}Not open to work{% endif %}</span></h5>
+            <h5 class="card-title" style="margin-bottom 5px;"><span>Creators Brief</span><br/>{{creator.brief_bio|safe|truncatechars:150}}</h5>
+            <h5 class="card-title" style="margin-bottom 5px;"><span>Content type creators creates</span><br/>{{creator.type_of_content|safe|truncatechars:150}}</h5>
+          </div>
+
+          {% if first_survey %}
+          <div class="card-body">
+            <h5 class="card-title" style="margin-bottom 5px;"><span>Current Video Creation tools stack creator has?</span><br/>{{first_survey.question_three_answer|safe|truncatechars:150}}</h5>
+            <h5 class="card-title" style="margin-bottom 5px; padding-top: 5px;"><span>Expected Monthly pay: </span>{{first_survey.question_eleven_answer}}</h5>
+          </div>
+          {% endif %}
+          <div class="card-body">
+            <a href="?job_id={{job_id}}&creator_id={{creator.id}}" class="btn btn-primary">Hire Me</a>
+            <a href="{% url 'creator_profile' creator.id %}?job_id={{job_id}}" class="btn btn-primary">View More</a>
+          </div>
+        </div><!-- End Card with an image on top -->
+        {% endwith%}
+        {% endfor %}
+
+    </div>
+  </section>
+
+</main><!-- End #main -->
+{% endblock %}

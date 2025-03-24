@@ -1,11 +1,13 @@
 from django.contrib import admin
-from .models import Business, Staff, Challenge,  LoyaltyPointsCategory, ChallengeResult, LoyaltyPointForLogginIn, MonthlyRefferalPointsUpdate
+from .models import Business, Staff, Challenge,  LoyaltyPointsCategory, ChallengeResult, LoyaltyPointForLogginIn, MonthlyRefferalPointsUpdate, ContentCreationJob, JobApplication
 
 # Register your models here.
 admin.site.register(Business)
 admin.site.register(Staff)
 admin.site.register(Challenge)
 admin.site.register(LoyaltyPointsCategory)
+admin.site.register(ContentCreationJob)
+admin.site.register(JobApplication)
 
 from django.db import transaction
 import logging

@@ -1,14 +1,15 @@
 from django.shortcuts import render, redirect
 from django.db.models import Sum
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from datetime import date, timedelta
 from django.contrib.auth.models import User
 import uuid
 from django.utils.text import slugify
-from .models import Business, Staff, Challenge,  LoyaltyPointsCategory, ChallengeResult
+from .models import Business, Staff, Challenge, JobApplication,  LoyaltyPointsCategory, ChallengeResult, ContentCreationJob
+from .forms import ContentCreationJobForm
 from home.models import RefferralCode
-from creators.models import Creator
+from creators.models import Creator, AccountMonetization
+from django.contrib.auth.decorators import login_required
 from .decorators import team_member_required
 from creators.functions import sendChallengeNotificationToCreators
 # Create your views here.
@@ -122,6 +123,92 @@ def add_staff(request, slug):
 
 @login_required(login_url="/login-user/")
 @team_member_required
+def add_content_creation_job(request, slug):
+    business = Business.objects.filter(slug=slug).first()
+    staff = Staff.objects.filter(user=request.user, business=business).first()
+    if staff is None:
+        messages.success(request, 'have No permission to list a content creation job')
+        return redirect('profile')
+    if request.method == 'POST':
+        form = ContentCreationJobForm(request.POST)
+            # Save the form only if all validations pass
+        if form.is_valid():
+            instance=form.save(commit=False)
+            instance.business =  business
+            instance.save()
+            messages.success(request, "Job created succesfully ")
+            url = f'/creators/?job_id={instance.id}'
+            return redirect(url) 
+    
+    form = ContentCreationJobForm()
+    context = {
+        'business': business,
+        'staff': staff,
+        'form': form
+    }
+    return render(request, 'business/add-content-creation-job.html', context)
+
+@login_required(login_url="/login-user/")
+@team_member_required
+def content_creation_jobs(request, slug):
+    update = request.GET.get('update') or ''
+    businesses = Business.objects.filter(owner=request.user)
+    business = Business.objects.filter(slug=slug).first()
+    if business is None:
+        messages.success(request, 'Business does not exist')
+        return redirect('profile')
+    jobs = ContentCreationJob.objects.filter(business=business).order_by('-id')
+    staff = Staff.objects.filter(business=business, user=request.user)
+    if update != '':
+        challenge = Challenge.objects.filter(id=update).first()
+        if challenge.closed == False:
+            challenge.closed = True
+            challenge.save()
+        else:
+            challenge.closed = False
+            challenge.save()
+        return redirect('store_challenges', slug)
+    context={
+        'businesses': businesses,
+        'business': business,
+        'jobs':jobs,
+        'staff': staff
+    }
+    return render(request, 'business/content-creation-jobs.html', context)
+
+@login_required(login_url="/login-user/")
+@team_member_required
+def content_creation_jobs_requests(request, slug):
+    job_application_id = request.GET.get('job_application_id') or ''
+    businesses = Business.objects.filter(owner=request.user)
+    business = Business.objects.filter(slug=slug).first()
+    if business is None:
+        messages.success(request, 'Business does not exist')
+        return redirect('profile')
+    job_requests = JobApplication.objects.filter(business=business).order_by('-id')
+    staff = Staff.objects.filter(business=business, user=request.user)
+    if job_application_id != '':
+        job_request= JobApplication.objects.filter(business=business, id=job_application_id).first()
+        if job_request is None:
+            messages.success(request, 'job request does not exist')
+            return redirect('content_creation_jobs_requests', slug)
+        else:
+            job_request.accepted_by_business = True
+            job_request.save()
+            messages.success(request, 'job request approved')
+            messages.success(request, 'creator updated')
+            messages.success(request, 'encouraged to reach out to the creator using the number above')
+        return redirect('content_creation_jobs_requests', slug)
+    context={
+        'businesses': businesses,
+        'business': business,
+        'job_requests':job_requests,
+        'staff': staff
+    }
+    return render(request, 'business/jobs-requests.html', context)
+
+@login_required(login_url="/login-user/")
+@team_member_required
 def create_store_challenge(request, slug):
     business = Business.objects.filter(slug=slug).first()
     staff = Staff.objects.filter(user=request.user, business=business).first()
@@ -130,7 +217,10 @@ def create_store_challenge(request, slug):
         return redirect('profile')
     if request.method == "POST":
         description = request.POST.get('description')
+        category = request.POST.get('category') 
         challenge_name = request.POST.get('challenge_name')
+        pay_per_1000_views = request.POST.get('pay_per_1000_views', 0)
+        maximum_payout_per_creator = request.POST.get('maximum_payout_per_creator', 0)
         budget = request.POST.get('budget')
         rules = request.POST.get('rules')
         video_url = request.POST.get('video_url')
@@ -139,7 +229,10 @@ def create_store_challenge(request, slug):
         challenge_reward = int(int(budget) * 0.90) 
         challenge=Challenge.objects.create(
             business=business,
+            category=category,
             budget = budget,
+            pay_per_1000_views = pay_per_1000_views,
+            maximum_payout_per_creator=maximum_payout_per_creator,
             challenge_name = challenge_name,
             challenge_reward = challenge_reward,
             description =description,
@@ -149,7 +242,7 @@ def create_store_challenge(request, slug):
             created_by=staff
         )
         messages.success(request, 'challenge created successfuly')  
-        # sendChallengeNotificationToCreators(challenge)
+        sendChallengeNotificationToCreators(challenge)
         return redirect('store_challenges', slug)
     context = {
         'business': business,
@@ -201,6 +294,7 @@ def view_store_challenge(request, slug):
 
 @login_required(login_url="/login-user/")
 def submit_challenge_video_url(request, id):
+    today = date.today()
     challenge = Challenge.objects.filter(id=id).first()
     if not challenge:
         messages.success(request, 'challenge was not found reselect and try again ')
@@ -212,7 +306,21 @@ def submit_challenge_video_url(request, id):
         if not creator:
             messages.success(request, 'you are not a creator click on become a creator to get an account ')
             return redirect('profile')
-        
+
+        monetization_progress = AccountMonetization.objects.filter(creator=creator).first()
+        if monetization_progress is None:
+            AccountMonetization.objects.create(
+                creator=creator,
+                login_update_date = today,
+                challenge_participation_update_date = today
+                )
+        else:
+            if creator not in challenge.participants.all():
+                monetization_progress.challenge_participation_progress += 3.334
+                if monetization_progress.challenge_participation_progress < 50 :
+                    monetization_progress.average_percentage_progress += int(3.334)
+                monetization_progress.challenge_participation_update_date = today
+                monetization_progress.save()
 
         ChallengeResult.objects.create(
             challenge=challenge,

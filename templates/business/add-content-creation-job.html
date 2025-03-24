@@ -9,7 +9,7 @@
     <div class="row" style="justify-content: center;">
         
         <div class="col-lg-6 " >
-            <div class="row" style="justify-content: center;"><b>Submit Your Video URL Link</b></div>
+            <div class="row" style="justify-content: center;"><b>Add Content Creation Job</b></div>
             <div class="from_area">
                 {% if messages %}
                     {% for message in messages %}
@@ -19,23 +19,12 @@
                     </div>
                     {% endfor %}
                 {% endif %}
-                <form class="from_main" action="{% url 'submit_video_url' challenge.id %}" method="POST">
+                <form class="from_main" action="{% url 'add_content_creation_job' business.slug %}" method="POST">
                     {% csrf_token %}
                     
-                    <div class="form-group">
-                        <input type="url" name="video_url" class="form-control mb-1" placeholder=" provide a link to the video you've created for the challenge" required>
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            provide a link to the video you've created for the challenge
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            makesure you have gone through the challenge brief and rules
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                    </div>
-                    
+                    {{form.as_p}}
                     <div class="form-group m-0 btn_g">
-                        <button class="theme_btn btn" id="registerButton" type="submit" >submit</button>
+                        <button class="theme_btn btn" id="registerButton" type="submit" >Submit</button>
                     </div>
                 </form>
         </div>
@@ -56,7 +45,7 @@
                 loginButton.disabled = true;
 
                 // Update the button text
-                loginButton.textContent = "submitting your video url ...";
+                loginButton.textContent = "adding job inprogress...";
             });
         }
     });

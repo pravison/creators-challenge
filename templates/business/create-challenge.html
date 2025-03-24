@@ -25,6 +25,27 @@
                         <input type="text" name="challenge_name" class="form-control" placeholder="Challenge Name" required>
                     </div>
                     <div class="form-group">
+                        <select class="form-control" name="category" style="height: 55px;" placeholder="Select Challenge category" required>
+                            <option value="">Select Category</option>
+                            <option value="challenge">challenge (here you only reward top performing creators only)</option>
+                            <option value="view reward program">view reward program (here you reward creators depending on the views they get) </option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" name="pay_per_1000_views" class="form-control" placeholder="How much will you pay for 1000 views ">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            How much will you pay for 1000 views ex. you can pay 50 for 1000 views (all amount stated will be in kenyan currency ) <br/> leave it empty if you selected your category to be challenge
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="number" name="maximum_payout_per_creator" class="form-control" placeholder="Set your Maximun payout per creator ">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            Set your Maximun payout per creator if you selected your category as view reward program else leave it empty 
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    <div class="form-group">
                         <textarea type="text" name="description" class="form-control" placeholder="Write your Brief: tell us more about the challenge and your businesss" required></textarea>
                     </div>
                     <div class="form-group">
@@ -38,7 +59,7 @@
                         <input type="number" name="budget" class="form-control" placeholder="Set your Budget " required>
                     </div>
                     <div class="form-group">
-                        <textarea type="text" name="rules" class="form-control" placeholder="outline guidelines tha speaks to your target audience" required></textarea>
+                        <textarea type="text" name="rules" class="form-control" placeholder="outline guidelines that you want video submitted to follow" required></textarea>
                     </div>
                     <div class="form-group">
                         <label>last day of the challenge </label>

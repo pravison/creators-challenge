@@ -1,0 +1,88 @@
+{% extends 'profile-main.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize%}
+{% block title %} {{ request.user.first_name }} {{ request.user.last_name }} {% endblock%}
+{% block content %}
+
+  <main id="main" class="main">
+
+    <div class="pagetitle">
+      <h1>Video Creation Jobs</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="{% url 'profile' %}">Profile</a></li>
+          <li class="breadcrumb-item active">Video Creation Jobs</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <section class="section">
+    <div class="row align-items-top">
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        <!-- Card with an image on top -->
+        {% for job in jobs %}
+        <div class="card  ms-3 col-lg-4" style="padding: 5x;">
+          <div class="card-body">
+            <h5 class="card-title" style="margin-bottom 5px;"><b>{{ job.job_type}} Job</b><br/><span>listed by: {{job.business.business_name}}</span><br/><span>target number of creators: {{job.number_of_creators}}</span><br/><span>total applications: {{job.total_applications}}</span></h5>
+            <h5 class="card-title" style="margin-top 5px;"><span>Jobs Description:</span><br/>{{job.job_description|safe}}</h5>
+            <h5 class="card-title" style="margin-bottom 5px;"><span>Monthly Pay:</span><br/>{{job.monthly_pay}}</h5>
+          </div>
+          <div class="card-body">
+            <a href="{% url 'jobs' %}?job_id={{job.id}}" class="btn btn-primary">Apply</a>
+          </div>
+        </div><!-- End Card with an image on top -->
+        {% endfor %}
+
+    </div>
+  </section>
+
+  </main><!-- End #main -->
+<script>
+  function showPopup(event) {
+      event.preventDefault(); // Prevent default link behavior
+      const popup = document.getElementById('popup');
+      popup.style.display = 'flex'; // Show the popup
+  }
+  
+  function closePopup() {
+      const popup = document.getElementById('popup');
+      popup.style.display = 'none'; // Hide the popup
+  }
+  
+  function copyToClipboard() {
+      const urlField = document.getElementById('share-url');
+      urlField.select(); // Select the text
+      document.execCommand('copy'); // Copy the text to the clipboard
+      alert('URL copied to clipboard!');
+  }
+</script>
+
+<script>
+  function showPopupBusiness(event) {
+      event.preventDefault(); // Prevent default link behavior
+      const popup = document.getElementById('popupBusiness');
+      popup.style.display = 'flex'; // Show the popup
+  }
+  
+  function closeBusinessPopup() {
+      const popup = document.getElementById('popupBusiness');
+      popup.style.display = 'none'; // Hide the popup
+  }
+  
+  function copyBusinessToClipboard() {
+      const urlField = document.getElementById('share-url-business');
+      urlField.select(); // Select the text
+      document.execCommand('copy'); // Copy the text to the clipboard
+      alert('URL copied to clipboard!');
+  }
+</script>
+
+{% endblock %}

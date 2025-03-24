@@ -1,0 +1,330 @@
+{% extends 'profile-main.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize%}
+{% block title %} {{ request.user.first_name }} {{ request.user.last_name }} {% endblock%}
+{% block content %}
+<style>
+  /* popup styling  */
+/* Popup container (hidden by default) */
+.popup {
+  display: none; /* Hidden by default */
+  /*position: fixed; /*Ensures the popup stays on the screen*/
+  top: 10px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff; /* rgba(0, 0, 0, 0.5); Dark overlay */
+  justify-content: center;
+  align-items: center;
+  z-index: 9999; /* Higher z-index to appear on top of other elements */
+}
+
+/* Popup content box */
+.popup-content {
+  background: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  text-align: center;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  max-width: 100%;
+  width: 100%;
+  z-index: 10000; /* Ensures the content box stays above the overlay */
+}
+/* #cc922e */ 
+/* #1563df blue color */
+
+.popup-content input {
+  width: 100%;
+  padding: 8px;
+  margin: 10px 0;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.popup-content button {
+  margin: 5px;
+  padding: 8px 16px;
+  background: #1563df;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.popup-content button:hover {
+  background: #1563df;
+}
+</style>
+<main id="main" class="main">
+    
+    <div class="pagetitle">
+      <h1>{{ creator.user.first_name }} {{ creator0.user.last_name }}</h1>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        
+    </div><!-- End Page Title -->
+
+    <section class="section profile">
+      <div class="row">
+        
+        <div class="col-xl-4">
+          <div class="card">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              <h2>{{ creator.user.first_name }} {{ creator.user.last_name }}</h2>
+              <h3>has {{creator.total_followers}} followers<br/><span>and is {% if creator.willing_to_work %} Open to work {% else %}Not open to work{% endif %}</span></h3>
+            </div>
+            <div class="card-body d-flex flex-column align-items-center">
+            <a href="?job_id={{job_id}}&creator_id={{creator.id}}" class="btn btn-primary">Hire Me</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-8">
+          {% if  creator  %}
+          <div class="card">
+            <div class="card-body pt-3">
+              <!-- Bordered Tabs -->
+              <ul class="nav nav-tabs nav-tabs-bordered">
+                
+                <li class="nav-item">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#profile-info">Profile Info</button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#challenge-performance">Challenge Performance </button>
+                </li>
+
+                <li class="nav-item">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#Awards">Awards</button>
+                </li>
+
+                
+
+              </ul>
+              <div class="tab-content pt-2">
+                
+                <div class="tab-pane fade show active profile-overview" id="profile-info">
+                  <h5 class="card-title">Brief Bio</h5>
+                  <p class="small fst-italic">{{creator.brief_bio|safe}}</p>
+                  <h5 class="card-title">Type of Content Creator Creates</h5>
+                  <p class="small fst-italic">{{creator.type_of_content|safe}}</p>
+                  
+                  {% with first_survey=creator.survey.all|first %}
+                  <h5 class="card-title">Current Video Creation tools stack creator has</h5>
+                  <p class="small fst-italic">{{first_survey.question_three_answer|safe}}</p>
+                  <h5 class="card-title">Creators is passonate to work with companies in these sectors</h5>
+                  <p class="small fst-italic">{{first_survey.question_five_answer|safe}}</p>
+
+                  <h5 class="card-title">Checkout some of the videos creator has created</h5>
+                  <div class="row">
+                    <div class="col-lg-9 col-md-8"><a href="{{first_survey.question_six_answer}}"> {{first_survey.question_six_answer}}</a></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-9 col-md-8"><a href="{{first_survey.question_seven_answer}}"> {{first_survey.question_seven_answer}}</a></div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-9 col-md-8"><a href="{{first_survey.question_eight_answer}}"> {{first_survey.question_eight_answer}}</a> </div>
+                  </div>
+                  
+                  <h5 class="card-title">Profile Details</h5>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label ">Full Name</div>
+                    <div class="col-lg-9 col-md-8">{{ creator.user.first_name }} {{ creator.user.last_name }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Country Of Residence</div>
+                    <div class="col-lg-9 col-md-8">{{first_survey.question_nine_answer|safe}}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">County Of Residence</div>
+                    <div class="col-lg-9 col-md-8">{{first_survey.question_ten_answer|safe}}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Expected Monthly Pay</div>
+                    <div class="col-lg-9 col-md-8">{{first_survey.question_eleven_answer|safe}}</div>
+                  </div>
+                  
+                  {% if creator.social_media_accounts.first %}
+                  <h5 class="card-title">Social Media Accounts</h5>
+                  {% for account in creator.social_media_accounts.all %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">{{account.platform}}</div>
+                    <div class="col-lg-9 col-md-8">{{account.total_follower}} <br/> {{account.account_link}}</div>
+                  </div>
+                  {% endfor %}
+                  {% endif %}
+
+                  {% endwith%}
+                  <div class="card-body">
+                  <a href="?job_id={{job_id}}&creator_id={{creator.id}}" class="btn btn-primary">Hire Me</a>
+                  </div>
+                </div>
+
+                <div class="tab-pane fade pt-3" id="challenge-performance">
+
+                  <div class="row">
+
+                    <div class="col-lg-12">
+                
+                      <!-- businesss section  -->
+                      <div class="card-body">
+                        <h5 class="card-title">Challenges creator has participated in</h5>
+                        
+                        <div class="card-body overflow-auto">
+                          <h5 class="card-title">Challenges</h5>
+                          <!-- Table with stripped rows -->
+                          <table class="table datatable">
+                            <thead>
+                              <tr>
+                                <th scope="col">Business Name</th>
+                                <th scope="col">Challenge</th>
+                                <th scope="col">Total Views</th>
+                                <th scope="col">video url</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for challenge in challenges %}
+                              <tr>
+                                <td scope="row">{{challenge.challenge.business.business_name}}</td>
+                                <th scope="row"><a href="{% url 'view_store_challenge' challenge.challenge.business.slug %}?challenge_id={{challenge.challenge.id}}" style="cursor: pointer">{{challenge.challenge.challenge_name}}</a></th>
+                                <td scope="row">{{challenge.total_views}}</td>
+                                <td  scope="row"><a href="{{challenge.video_url}}" style="cursor: pointer">{{ challenge.video_url}}</a></td>
+                              </tr>
+                              {% endfor %}
+                              
+                            </tbody>
+                          </table>
+                        </div>
+              
+                      </div><!-- End business you have participated challenge with -->
+                
+                    </div>
+                
+                  </div>
+                </div>
+
+                <!-- points earned -->
+                <div class="tab-pane fade profile-overview" id="Awards">
+                  <div class="row">
+                      <div class="col-lg-12">
+              
+                        <div class="card">
+                          <div class="card-body overflow-auto">
+                            <h5 class="card-title">Points Earned</h5>
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                              for every view you get from challenges you participate in  you earn one point 
+                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                              points value vary from 1000 point equal to ksh.10 to ksh.50 depending on challenges value
+                              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                            <!-- Table with stripped rows -->
+                            <table class="table datatable">
+                              <thead>
+                                <tr>
+                                  <th scope="col">Challenge</th>
+                                  <th scope="col">Total Views</th>
+                                  <th scope="col">Points Earned</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for point in points %}
+                                <tr>
+                                  <td>{{ point.challenge}}</td>
+                                  <th>{{point.total_views}}</th>
+                                  <th>{{point.points_earned}}</th>
+                                  
+                                </tr>
+                                {% endfor %}
+                                
+                              </tbody>
+                            </table>
+                            <!-- End Table with stripped rows -->
+              
+                          </div>
+                        </div>
+              
+                      </div>
+                  </div>
+                </div>
+
+
+              </div><!-- End Bordered Tabs -->
+
+            </div>
+          </div>
+          {% else %}
+          <div class="col-xxl-4 col-md-4">
+            <div class="card info-card revenue-card">
+              <div class="card-body">
+                <h5 class="card-title"></h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="ps-3">
+                    <h6><a href="{% url 'add_creator' %}">Become a Creator</a></h6>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+</main><!-- End #main -->
+<script>
+  function showPopup(event) {
+      event.preventDefault(); // Prevent default link behavior
+      const popup = document.getElementById('popup');
+      popup.style.display = 'flex'; // Show the popup
+  }
+  
+  function closePopup() {
+      const popup = document.getElementById('popup');
+      popup.style.display = 'none'; // Hide the popup
+  }
+  
+  function copyToClipboard() {
+      const urlField = document.getElementById('share-url');
+      urlField.select(); // Select the text
+      document.execCommand('copy'); // Copy the text to the clipboard
+      alert('URL copied to clipboard!');
+  }
+</script>
+
+<script>
+  function showPopupBusiness(event) {
+      event.preventDefault(); // Prevent default link behavior
+      const popup = document.getElementById('popupBusiness');
+      popup.style.display = 'flex'; // Show the popup
+  }
+  
+  function closeBusinessPopup() {
+      const popup = document.getElementById('popupBusiness');
+      popup.style.display = 'none'; // Hide the popup
+  }
+  
+  function copyBusinessToClipboard() {
+      const urlField = document.getElementById('share-url-business');
+      urlField.select(); // Select the text
+      document.execCommand('copy'); // Copy the text to the clipboard
+      alert('URL copied to clipboard!');
+  }
+</script>
+
+{% endblock %}

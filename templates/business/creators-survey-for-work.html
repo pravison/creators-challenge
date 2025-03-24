@@ -1,0 +1,112 @@
+{% extends 'main.html' %}
+{% load static %}
+
+{% block content %}
+<!-- popup register -->
+
+<!-- Get In Touch With Us Area -->
+<section class="get_touch_area" style="padding-top: 120px;">
+    <div class="row" style="justify-content: center;">
+        
+        <div class="col-lg-6 " >
+            <div class="row ms-1" style="justify-content: center;"><b>Welcome {{request.user.first_name}}</b></div>
+            <div class="row ms-1" style="justify-content: center;"><b>Answer Above Question To Finish Up Your Profile</b></div>
+            <div class="from_area">
+                {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endfor %}
+                {% endif %}
+                <form class="from_main" action="{% url 'creators_survey_for_work' creator.id %}" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label>{{creator_survey.question_two}} <br/> where 1 is the lowest and 10 the highest</label>
+                        <select class="form-control" name="question_two_answer" value="" style="height: 55px;" placeholder="{{creator_survey.question_two}}" required>
+                            <option {% if creator_survey.question_two_answer %} selected {% endif %} value="{% if creator_survey.question_two_answer %}{{creator_survey.question_two_answer}} {% endif %}">{% if creator_survey.question_two_answer %}{{creator_survey.question_two_answer}} {% else %}{{creator_survey.question_two}} {% endif %}</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10</option>
+                            
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{{creator_survey.question_13}} <br/></label>
+                        <select class="form-control" name="question_13_answer" style="height: 55px;" placeholder="{{creator_survey.question_13}}" required>
+                            <option {% if creator_survey.question_13_answer %} selected {% endif %} value="{% if creator_survey.question_13_answer %}{{creator_survey.question_13_answer}} {% endif %}">{% if creator_survey.question_13_answer %}{{creator_survey.question_13_answer}} {% else %}{{creator_survey.question_13}}{% endif %}</option>
+                            <option value="yes">yes</option>
+                            <option value="no">no</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>{{creator_survey.question_three}}</label>
+                        <textarea type="text" name="question_three_answer"  class="form-control" placeholder="Tell us a bout your video creation tools stack">{% if creator_survey.question_three_answer %}{{creator_survey.question_three_answer}} {% endif %}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{creator_survey.question_four}}</label>
+                        <textarea type="text" name="question_four_answer"class="form-control" placeholder="Tell us a bout video creation tools stack you think you need to create better videos">{% if creator_survey.question_four_answer %}{{creator_survey.question_four_answer}} {% endif %}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{creator_survey.question_five}}</label>
+                        <textarea type="text" name="question_five_answer" class="form-control" placeholder="which industries are you passionate working with">{% if creator_survey.question_five_answer %}{{creator_survey.question_five_answer}} {% endif %}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{creator_survey.question_six}}</label>
+                        <input type="url" name="question_six_answer" value="{% if creator_survey.question_six_answer %} {{creator_survey.question_six_answer}}{% endif %}" class="form-control" placeholder="first link" required/>
+                        <input type="url" name="question_seven_answer" value="{% if creator_survey.question_seven_answer %} {{creator_survey.question_seven_answer}}{% endif %}" class="form-control" placeholder=" second link"/>
+                        <input type="url" name="question_eight_answer" value="{% if creator_survey.question_eight_answer %}{{creator_survey.question_eight_answer}} {% endif %}" class="form-control" placeholder="third link"/>
+                    </div>
+
+                    <div class="form-group">
+                        <label>{{creator_survey.question_nine}}</label>
+                        <input type="text" name="question_nine_answer" value="{{creator_survey.question_nine_answer}}" class="form-control" placeholder="ex. kenya">
+                    </div>
+                    <div class="form-group">
+                        <label>{{creator_survey.question_ten}}</label>
+                        <input type="text" name="question_ten_answer" value="{{creator_survey.question_ten_answer}}" class="form-control" placeholder="ex. nairobi">
+                    </div>
+                    <div class="form-group">
+                        <label>{{creator_survey.question_eleven}}</label>
+                        <input type="Number" name="question_eleven_answer" value="{{creator_survey.question_eleven_answer}}" class="form-control" placeholder="ex. 5000">
+                    </div>
+                    
+                    <div class="form-group m-0 btn_g">
+                        <button class="theme_btn btn" id="registerButton" type="submit" >Save</button>
+                    </div>
+                </form>
+        </div>
+
+        
+    </div>
+</section>
+<!-- Get In Touch With Us Area -->
+<script>
+    // Add an event listener to the form submission
+    document.addEventListener('DOMContentLoaded', function () {
+        const loginButton = document.getElementById('registerButton');
+        const form = loginButton.closest('form'); // Find the closest form element
+
+        if (form) {
+            form.addEventListener('submit', function () {
+                // Disable the button
+                loginButton.disabled = true;
+
+                // Update the button text
+                loginButton.textContent = "Saving  your info...";
+            });
+        }
+    });
+</script>
+{% endblock %}

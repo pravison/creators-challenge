@@ -57,6 +57,7 @@
   background: #1563df;
 }
 </style>
+
 <main id="main" class="main">
     
     <div class="pagetitle">
@@ -75,7 +76,7 @@
         <div class="alert alert-warning alert-dismissible fade show" role="alert">
           <div>
             <b>are you open to patner with a business?</b>
-            to patner means to into business together!
+            to patner means to go into business together!
             <br/>
             <a href="{% url 'profile' %}?patner=yes">Yes</a>   <a href="{% url 'profile' %}?patner=no">No</a>
           </div>
@@ -121,7 +122,52 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               <h3>Active Challenges Participating In: {{challenges_count}}</h3></div>
+
           </div>
+          {% if creator %}
+          <div class="card">
+            <div class="card-body">
+              {% if not monetization_progress.monetizable  %}
+              <div class="alert alert-warning alert-dismissible fade show mt-2" role="alert">
+                <div>
+                  <b>For you to start earning we have to assess your performance atleast one month</b>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <div>
+                  <b>Your perfomance results will be shown by the progress bar <br/>once you hit 100% you will start earning</b>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <div>
+                  <b>The more you participate in challenges, go through the learning materials shared the faster your progress will be <br/> and you might start earning even before 30 days</b>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                <div>
+                  <b>To start earning participate in atleast 15 challenges and log into your account atleast 30 days</b>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+              {% endif %}
+              <h5 class="card-title">Your Monetization Progress</h5>
+
+              <!-- Progress Bars with labels-->
+              <div class="progress mt-3">
+                <div class="progress-bar" role="progressbar" style="width: {{monetization_progress.average_percentage_progress}}%" aria-valuenow="{{monetization_progress.average_percentage_progress}}" aria-valuemin="0" aria-valuemax="100">{{monetization_progress.average_percentage_progress}}%</div>
+              </div><!-- End Progress Bars with labels -->
+              {% if not monetization_progress.monetizable %}
+              <h6 class="mt-2">Remaining Challenges: {{challenges_remaining}}</h6>
+              <h6>Remaining Days: {{days_remaining}}</h6>
+              {% else %}
+              <h5 class="card-title">Approved</h5>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
           <div class="card" id="refferal-links">
             <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
               {% if not refferal_code.code %}
@@ -228,7 +274,7 @@
                                     <td scope="row">{{challenge.business.business_name}}</td>
                                     <th scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" style="cursor: pointer">{{challenge.challenge_name}}</a></th>
                                     <td scope="row">{{challenge.challenge_reward}}</td>
-                                    <td scope="row"><a href="{% url 'view_store_challenge' challenge.business.slug %}?challenge_id={{challenge.id}}" title="view"> {% if challenge.closed %}Yes {% else %}No {%  endif %}</td>
+                                    <td scope="row"> {% if creator in challenge.participants.all %}Yes {% else %}No {%  endif %}</td>
                                     <td  scope="row">{{ challenge.last_day_of_the_challenge}}</td>
                                   </tr>
                                   {% endfor %}
@@ -461,8 +507,7 @@
                   </div>
                 </div>
                 <!-- end refferal  -->
-
-              </div><!-- End Bordered Tabs -->
+              </div>
 
             </div>
           </div>

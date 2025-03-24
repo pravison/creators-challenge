@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+
 from django.conf import settings 
 from django.http import HttpResponse
 from django.http import JsonResponse
@@ -9,7 +10,9 @@ from datetime import date, timedelta
 from django.utils.text import slugify
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
-from .models import Creator, SocialMediaAccount
+from .models import Creator, SocialMediaAccount, AccountMonetization, CreatorsSurvey
+from businesses.models import ChallengeResult, JobApplication, ContentCreationJob
+
 from home.models import RefferralCode
 
 # Create your views here.
@@ -32,8 +35,8 @@ def add_creator(request):
                 reffery = code.user
         Creator.objects.create(
             user = request.user,
-            phone_number = phone_number,
-            total_followers=total_followers,
+            phone_number = int(phone_number),
+            total_followers= int(total_followers),
             brief_bio = brief_bio ,
             type_of_content = type_of_content,
             reffered_by=reffery
@@ -44,6 +47,118 @@ def add_creator(request):
         'refferal_code': refferal_code
     }
     return render(request, 'business/add-creator.html', context)
+
+def edit_profile(request, id):
+    creator = Creator.objects.filter(id=id).first()
+    social_media_link = request.GET.get('social_media_link') or ''
+
+    if creator is None:
+        messages.success(request, 'Creator account not found')
+        return redirect('profile')
+
+    social_media_accounts = SocialMediaAccount.objects.filter(user=request.user) or None
+
+    if creator.user == request.user:
+        if request.method == "POST":
+            phone_number = request.POST.get('phone_number')
+            total_followers = request.POST.get('total_followers', 0)
+            type_of_content = request.POST.get('type_of_content')
+            brief_bio = request.POST.get('brief_bio')
+
+            creator.phone_number = int(phone_number)
+            creator.total_followers = int(total_followers)
+            creator.type_of_content = type_of_content
+            creator.brief_bio = brief_bio
+            creator.save()
+            messages.success(request, 'Your information has been saved succesfully')
+            return redirect('profile')
+    
+    context = {
+       'creator': creator,
+       'social_media_accounts':social_media_accounts
+    }
+    return render(request, 'business/edit-profile.html', context)
+
+
+def creators_survey_for_work(request, id):
+    creator = Creator.objects.filter(id=id).first()
+
+    if creator is None:
+        messages.success(request, 'Creator account not found')
+        return redirect('profile')
+    creator_survey = CreatorsSurvey.objects.filter(creator=creator).first()
+    if creator_survey is None:
+        creator_survey = CreatorsSurvey.objects.create(creator=creator)
+
+    if request.method == "POST":
+        question_two_answer = request.POST.get('question_two_answer')
+        question_13_answer = request.POST.get('question_13_answer')
+        question_three_answer = request.POST.get('question_three_answer')
+        question_four_answer = request.POST.get('question_four_answer')
+        question_five_answer = request.POST.get('question_five_answer')
+        question_six_answer = request.POST.get('question_six_answer')
+        question_seven_answer = request.POST.get('question_seven_answer')
+        question_eight_answer = request.POST.get('question_eight_answer')
+        question_nine_answer = request.POST.get('question_nine_answer')
+        question_ten_answer = request.POST.get('question_ten_answer')
+        question_eleven_answer = request.POST.get('question_eleven_answer')
+
+        creator_survey.question_two_answer = int(question_two_answer)
+        creator_survey.question_13_answer = question_13_answer
+        creator_survey.question_three_answer = question_three_answer
+        creator_survey.question_four_answer = question_four_answer
+        creator_survey.question_five_answer = question_five_answer
+        creator_survey.question_six_answer  = question_six_answer 
+        creator_survey.question_seven_answer = question_seven_answer
+        creator_survey.question_eight_answer = question_eight_answer
+        creator_survey.question_nine_answer = question_nine_answer
+        creator_survey.question_ten_answer = question_ten_answer
+        creator_survey.question_eleven_answer = question_eleven_answer
+        creator_survey.save()
+        messages.success(request, 'Your information has been saved succesfully')
+        return redirect('profile')
+
+
+    context = {
+       'creator_survey': creator_survey,
+       'creator': creator
+    }
+    return render(request, 'business/creators-survey-for-work.html', context)
+
+def creator_profile(request, id):
+    job_id = request.GET.get('job_id') or ''
+    creator_id = request.GET.get('creator_id', '')
+    creators_with_surveys = Creator.objects.prefetch_related('survey').all()
+    creator = creators_with_surveys.filter(id=id).first()
+    challenges = ChallengeResult.objects.filter(creator=creator).all()
+    if creator is None:
+        messages.success(request, 'Creator account not found')
+        return redirect('profile')
+
+    if job_id != '' and creator_id != '':
+        job = ContentCreationJob.objects.filter(id=job_id, position_filled=False).first()
+        if job is None:
+            messages.success(request, "Job applied is unavailable")
+        if JobApplication.objects.filter(job=job, creator=creator).exists():
+            messages.success(request, "Request Already send")
+        else:
+            JobApplication.objects.create(
+                job=job,
+                business = job.business, 
+                creator=creator,
+                accepted_by_creator = True
+                )
+            messages.success(request, "Congratulations your hiring request has been successfully send to the creator")
+     
+    if creator_id != '' and not job_id != '' :
+        messages.success(request, "Visit your business dashboard select the job you want to hire the creator first and you will be redirected to this page")
+        
+    context = {
+       'job_id': job_id,
+       'creator': creator,
+       'challenges': challenges
+    }
+    return render(request, 'business/creator-profile.html', context)
 
 processed_message_ids = set()
 

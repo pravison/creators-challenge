@@ -73,7 +73,7 @@
             <li>
               <hr class="dropdown-divider">
             </li>
-
+            
             <li>
               <a class="dropdown-item d-flex align-items-center" href="https://wa.me/254740562740/">
                 <i class="bi bi-question-circle"></i>
@@ -83,7 +83,7 @@
             <li>
               <hr class="dropdown-divider">
             </li>
-
+          
             {% if creator %}
             {% if creator.willing_to_patner %}
             <li>
@@ -117,6 +117,24 @@
             <li>
               <hr class="dropdown-divider">
             </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'creator_profile' creator.id %}">
+                <i class="bi bi-eye"></i>
+                <span>view Your work profile</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'creators_survey_for_work' creator.id %}">
+                <i class="bi bi-pen"></i>
+                <span>Edit Your work profile</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
             {% else %}
             <li>
               <a class="dropdown-item d-flex align-items-center" href="{% url 'profile' %}?work=yes">
@@ -128,7 +146,15 @@
               <hr class="dropdown-divider">
             </li>
             {% endif %}
-            
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'edit_profile' creator.id %}">
+                <i class="bi bi-pen"></i>
+                <span>Edit Your profile</span>
+              </a>
+            </li>
+            <li>
+              <hr class="dropdown-divider">
+            </li>
             {% endif %}
             <li>
               <a class="dropdown-item d-flex align-items-center" href="{% url 'logout_user' %}">
@@ -214,8 +240,20 @@
               </a>
             </li>
             {% endif %}
+            <li class="nav-item">
+              <a class="nav-link collapsed" href="{% url 'jobs' %}">
+                <i class="bi bi-tags"></i>
+                <span>Jobs Site</span>
+              </a>
+            </li><!-- End Login Page Nav -->
+            <li class="nav-item">
+              <a class="nav-link collapsed" href="{% url 'job_requests' %}">
+                <i class="bi bi-tags"></i>
+                <span>Job Requests({{job_requests}})</span>
+              </a>
+            </li><!-- End Login Page Nav -->
             
-            {% endif %}
+        {% endif %}
       {% if request.user.is_authenticated %}
       <li class="nav-item">
         <a class="nav-link collapsed" href="{% url 'logout_user' %}">

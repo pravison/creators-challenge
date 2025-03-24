@@ -1,4 +1,5 @@
 from django.db import models
+from tinymce.models import HTMLField
 from django.utils.timezone import now
 from datetime import datetime, date , timedelta
 from django.contrib.auth.models import User
@@ -29,16 +30,45 @@ class  Staff(models.Model):
     date_joined = models.DateTimeField(auto_now_add = True)
     def __str__(self):
         return f'{self.user.first_name} - {self.business.business_name}'
- 
+
+class ContentCreationJob(models.Model): 
+    JOB_TYPE_CHOICES= {
+    'photo shooting' : 'photo shooting',
+    'video creation' : 'video creation',
+    'livestreaming'  : 'livestreaming',
+    'photo shooting, video creation, livestreaming': 'photo shooting, video creation, livestreaming'
+    }
+    business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='jobs')
+    job_type = models.CharField(max_length=150, choices=JOB_TYPE_CHOICES)
+    job_description =  HTMLField(blank=True)
+    monthly_pay = models.IntegerField(default=10000)
+    number_of_creators = models.IntegerField(default=4, help_text="number of creators you target to hire")
+    creators = models.ManyToManyField(Creator, blank=True)
+    position_filled = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.business.business_name}  {self.job_type}'
+
+class JobApplication(models.Model):
+    job = models.ForeignKey(ContentCreationJob,  on_delete=models.CASCADE, related_name="job_applications")
+    business = models.ForeignKey(Business, on_delete=models.CASCADE)
+    creator = models.ForeignKey(Creator, on_delete=models.CASCADE)
+    accepted_by_business = models.BooleanField(default=False)
+    accepted_by_creator = models.BooleanField(default=False)
+    def __str__(self):
+        return f'{self.business.business_name}  {self.job_type} {self.creator}'
 
 class Challenge(models.Model):
     business = models.ForeignKey(Business, on_delete=models.CASCADE, related_name='challenges')
     challenge_name = models.CharField(max_length=200)
+    category = models.CharField(max_length=100, choices=(('challenge', 'challenge'), ('view reward program', 'view reward program')))
     video_url = models.URLField(blank=True, null=True, help_text='if you have video you want creators to recreate their videos from')
     description = models.TextField(blank=True)
     budget = models.IntegerField()
     challenge_reward = models.IntegerField(help_text='whats the reward for the challenge')
-    target_winners = models.IntegerField(default=3, help_text='how many winners do you want for this challenge')
+    target_winners = models.IntegerField(default=7, help_text='how many winners do you want for this challenge')
+    pay_per_1000_views = models.IntegerField(default=10, help_text='how much are you paying for 100 views')
+    maximum_payout_per_creator =  models.IntegerField(default=0, help_text='setting maximum payout for view reward program helps pay ceators to a certain number of view after which extra views you wont pay for')
     last_day_of_the_challenge = models.DateField(auto_now_add=True)
     participants = models.ManyToManyField(Creator, blank=True, related_name='participants')
     winners = models.ManyToManyField(Creator, blank=True, related_name='winners')
