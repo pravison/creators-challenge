@@ -12,12 +12,12 @@ urlpatterns = [
     # path('subscribe-newsleter/', views.subscribe, name='subscribe'),
     # path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
 
-    
     # path('join-our-patnership-team/', views.join_affliate_team, name='join_affliate_team'),
     # path('patners-dashboard/', views.affiliate_dashboard, name='affiliate_dashboard'),
 
     path('request-reset-code/', views.request_reset_code, name='request_reset_code'),
     path('verify-reset-code/', views.verify_reset_code, name='verify_reset_code'),
+    path('reset-password/', views.reset_password, name='reset_password'),
     path('creators/', views.creators, name='creators'),
     path('jobs/', views.jobs, name='jobs'),
     path('job-requests/', views.job_requests, name='job_requests'),

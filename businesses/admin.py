@@ -51,6 +51,8 @@ class ChallengeResultAdmin(admin.ModelAdmin):
                         raise e  # Re-raise exception to ensure it can be handled in the admin interface
                 else:
                     logger.warning("Invalid data for total points calculation: creator_total_points, creator_challenge_points, or current_creator_challenge_points are None")
+
+                 
         else:
             pass  # No action required for new objects
 

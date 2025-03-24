@@ -430,7 +430,8 @@ def job_requests(request):
     if creator is None:
         messages.success(request, "Register first as creator to be able to see Job requests you have")
         messages.success(request, "visit your profile and click become creators")
-    jobs = JobApplication.objects.filter(creator=creator).order_by(-id)
+        return redirect('profile')
+    jobs = JobApplication.objects.filter(creator=creator).order_by('-id')
     
     if job_application_id != '':
         job_application = JobApplication.objects.filter(id=job_application_id, creator=creator).first()

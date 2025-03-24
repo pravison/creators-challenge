@@ -161,61 +161,55 @@
                 </div>
 
                 <div class="tab-pane fade pt-3" id="profile-settings">
-                  {% if challenge.winners.first %}
-                    {% for winner in challenge.winners.all %}
-                    <div class="row mb-3">
-                      <label for="fullName" class="col-md-3 col-lg-3 col-form-label">{{winner.code}}</label>
-                      <div class="col-md-8 col-lg-3">
-                        {{winner.customer.user.first_name}} {{winner.customer.user.last_name}}
+
+                  <div class="row">
+                    <div class="col-lg-12">
+            
+                      <div class="card">
+                        {% if winners %}
+                        <div class="card-body overflow-auto">
+                          <h5 class="card-title">Winners</h5>
+                          <!-- Table with stripped rows -->
+                          <table class="table datatable">
+                            <thead>
+                              <tr>
+                                <th scope="col">Creator</th>
+                                <th scope="col">Video Link</th>
+                                <th scope="col">Total Views</th>
+                                <th scope="col">Earned Points</th>
+                                <!-- <th scope="col">Potential Income</th> -->
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {% for winner in winners %}
+                              <tr>
+                                <td>{{winner.creator.user.first_name}}</td>
+                                <th><a href="{{ winner.video_url}}">{{ winner.video_url}}</a></th>
+                                <th>{{ winner.total_views}}</th>
+                                <th>{{ winner.points_earned}}</th>
+                                <!-- <th>{{ winner.total_views}}</th> -->
+                                
+                              </tr>
+                              {% endfor %}
+                              
+                            </tbody>
+                          </table>
+                          <!-- End Table with stripped rows -->
+            
+                        </div>
+                        {% else %}
+                        <div class="card-body overflow-auto">
+                          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            Winners havent been announced yet?
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                          </div>
+                        </div>
+                        {% endif %}
                       </div>
-                      {% if staff %}
-                      <div class="col-md-8 col-lg-6">
-                        {{winner.customer.user.email}}
-                      </div>
-                      {% endif %}
-                    </div>
-                    {% endfor %}
-                  {% else %}
-                  <div class="row mb-3">
-                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                      Winners havent been announced yet?
-                      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            
                     </div>
                   </div>
-                  {% endif %}
-                </div>
-
-                <div class="tab-pane fade pt-3" id="profile-change-password">
-                  <!-- Change Password Form -->
-                  <form>
-
-                    <div class="row mb-3">
-                      <label for="currentPassword" class="col-md-4 col-lg-3 col-form-label">Current Password</label>
-                      <div class="col-md-8 col-lg-9">
-                        <input name="password" type="password" class="form-control" id="currentPassword">
-                      </div>
-                    </div>
-
-                    <div class="row mb-3">
-                      <label for="newPassword" class="col-md-4 col-lg-3 col-form-label">New Password</label>
-                      <div class="col-md-8 col-lg-9">
-                        <input name="newpassword" type="password" class="form-control" id="newPassword">
-                      </div>
-                    </div>
-
-                    <div class="row mb-3">
-                      <label for="renewPassword" class="col-md-4 col-lg-3 col-form-label">Re-enter New Password</label>
-                      <div class="col-md-8 col-lg-9">
-                        <input name="renewpassword" type="password" class="form-control" id="renewPassword">
-                      </div>
-                    </div>
-
-                    <div class="text-center">
-                      <button type="submit" class="btn btn-primary">Change Password</button>
-                    </div>
-                  </form><!-- End Change Password Form -->
-
-                </div>
+                  
 
               </div><!-- End Bordered Tabs -->
 

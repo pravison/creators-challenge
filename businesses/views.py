@@ -219,8 +219,8 @@ def create_store_challenge(request, slug):
         description = request.POST.get('description')
         category = request.POST.get('category') 
         challenge_name = request.POST.get('challenge_name')
-        pay_per_1000_views = request.POST.get('pay_per_1000_views', 0)
-        maximum_payout_per_creator = request.POST.get('maximum_payout_per_creator', 0)
+        pay_per_1000_views = request.POST.get('pay_per_1000_views') or 0
+        maximum_payout_per_creator = request.POST.get('maximum_payout_per_creator') or 0
         budget = request.POST.get('budget')
         rules = request.POST.get('rules')
         video_url = request.POST.get('video_url')
@@ -242,7 +242,7 @@ def create_store_challenge(request, slug):
             created_by=staff
         )
         messages.success(request, 'challenge created successfuly')  
-        sendChallengeNotificationToCreators(challenge)
+        # sendChallengeNotificationToCreators(challenge)
         return redirect('store_challenges', slug)
     context = {
         'business': business,
@@ -283,12 +283,17 @@ def view_store_challenge(request, slug):
     challenge = Challenge.objects.filter(id=challenge_id).first()
     staff = Staff.objects.filter(business=business, user=request.user)
     participants = ChallengeResult.objects.filter(challenge=challenge).order_by('-total_views')
+    winners = participants
+    if challenge.category == 'challenge':
+        target_winners = challenge.target_winners
+        winners = winners[:target_winners]
     context={
         'businesses': businesses,
         'staff': staff,
         'business': business,
         'challenge':challenge,
-        'participants': participants
+        'participants': participants,
+        'winners': winners
     }
     return render(request, 'business/view-store-challenges.html', context)
 
