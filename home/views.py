@@ -200,7 +200,7 @@ def request_reset_code(request):
             
             # Send email
             send_mail(
-                'Your Password Reset Code',
+                'Challenge  Password Reset Code',
                 f'Your reset code is: {reset_code.code}',
                 'noreply@example.com',
                 [email],
@@ -208,23 +208,30 @@ def request_reset_code(request):
             messages.success(request, 'A reset code has been sent to your email and expires in ten minutes.')
             return redirect('verify_reset_code')
         except User.DoesNotExist:
-            messages.error(request, 'No account found with this email.')
-    else:
-        form = RequestResetCodeForm()
+            messages.success(request, 'No account found with this email.')
+            messages.success(request, 'Create an account.')
+            return redirect('register_user')
+    form = RequestResetCodeForm()
     return render(request, 'home/request_reset_code.html')
 
 
 def verify_reset_code(request):
     if request.method == 'POST':
         form = PasswordResetCodeForm(request.POST)
-        if form.is_valid():
-            code = form.cleaned_data['code']
+        if not form.is_valid():
+            messages.error(request, 'Error assessing your data counter check and try again')
+            return redirect('verify_reset_code')
+        code = form.cleaned_data['code']
         try:
             reset_code = PasswordResetCode.objects.filter(code=code, is_valid=True).order_by('-created_at').first()
+            if reset_code is None:
+                messages.error(request, 'Counter check your code seems its incorrect')
+                return redirect('verify_reset_code')
             if reset_code.is_expired():
                 reset_code.is_valid = False
                 reset_code.save()
                 messages.error(request, 'This code has expired.')
+                return redirect('request_reset_code')
             else:
                 # Invalidate the code
                 reset_code.is_valid = False
@@ -233,7 +240,8 @@ def verify_reset_code(request):
                 request.session['password_reset_user_id'] = reset_code.user.id
                 return redirect('reset_password')
         except PasswordResetCode.DoesNotExist:
-            messages.error(request, 'Invalid or expired code.')
+            messages.error(request, 'Counter check your code seems its incorrect')
+            return redirect('verify_reset_code')
     form = PasswordResetCodeForm()
     return render(request, 'home/verify_reset_code.html', {'form': form} )
 
