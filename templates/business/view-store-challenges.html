@@ -3,6 +3,29 @@
 {% load humanize%}
 {% block title %} {{ challenge.challenge_name}} {% endblock%}
 {% block content %}
+<style>
+  .coupon-card {
+      width: 280px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #007bff, #ffcc00);
+      padding: 10px;
+      color: white;
+      margin: auto;
+      text-align: center;
+  }
+  .coupon-code {
+      background-color: white;
+      color: black;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 15px;
+      font-weight: bold;
+  }
+  .qr-code {
+      margin-top: 15px;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
 
 <main id="main" class="main">
     {% if messages %}
@@ -14,7 +37,7 @@
     {% endfor %}
     {% endif %}
     <div class="pagetitle">
-      <h1>{{ challenge.challenge_name}}</h1>
+      <h1><a style="width: 100%;" href="#" class="mt-1 btn btn-warning mb-1">{{ challenge.category}} opportunity</a></h1>
       <nav>
         <ol class="breadcrumb">
           {% if staff %}
@@ -33,6 +56,7 @@
 
           <div class="card">
             <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              <a style="width: 100%;" href="#" class="mt-1 btn btn-warning mb-1">{{ challenge.category}} opportunity</a>
               <h2>{{ challenge.challenge_name}}</h2>
               <p>Last Day of Challenge: {{ challenge.last_day_of_the_challenge}}</p>
               <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -40,11 +64,26 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
               </div>
               <h3>Challenge Closed: {% if challenge.closed %} Yes {% else %} No {% endif %}</h3>
-              <h6><a href="{% url 'submit_video_url' challenge.id %}" style="cursor: pointer; color: blue;">Submit video link</a></h6>
+              <h6><a href="{% url 'submit_video_url' challenge.id %}" style="cursor: pointer; color: blue;">Submit video link</a>{% if challenge.instant_reward %}<br/><b class="small fst-italic">and instantly get  {{ challenge.instant_reward}}</b>{% endif %}</h6>
               
             </div>
           </div>
+          {% if staff %}
+          <div class="row">
+            <div class="container mt-5">
+              <div class="coupon-card" id="couponCardId">
+                  <p ><b>{{ challenge.challenge_name}}</b></p>
+                  <h4 style="margin-bottom: 5px; color: black;"><b>{% if challenge.category == 'challenge' %}stand a chance to win Ksh{{top_reward|intcomma}}{% else %} earn Ksh{{challenge.pay_per_1000_views|intcomma}} for 1000 views {% endif %}</b></h4>
+                  <div class="qr-code">
+                      <img src="data:image/png;base64,{{ qr_code_image }}" alt="QR Code" class="img-fluid">
+                  </div>
+                  <h6 style="margin-bottom: 5px; color: black"><b>Scan to learn more{% if challenge.instant_reward %} and submit your video and instantly get {{challenge.instant_reward}} {% endif %}</b></h6>
+              </div>
+            </div>
+            <button class="coupon-card btn btn-primary mt-2 mb-1" id="downloadBtn">Download Image</button>
 
+          </div>
+          {% endif %}
         </div>
 
         <div class="col-xl-8">
@@ -69,28 +108,73 @@
               </ul>
               <div class="tab-content pt-2">
                 <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                  for every view you get on the challenge video earns you a one point which you can reddeem to cash whenever you want
+                  for every view you get on the challenge video earns you one point which you can reddeem to cash whenever you want
                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
-                <h6><a href="{% url 'submit_video_url' challenge.id %}" style="cursor: pointer; color: blue;">Submit video url</a></h6>
+                <h6><a href="{% url 'submit_video_url' challenge.id %}" style="cursor: pointer; color: blue;">Submit video link</a>{% if challenge.instant_reward %}<br/><b class="small fst-italic">and instantly get  {{ challenge.instant_reward}}</b>{% endif %}</h6>
                 <div class="tab-pane fade show active profile-overview" id="profile-overview">
                   <h5 class="card-title">{{ challenge.challenge_name}}</h5>
+                  
                   <p class="small fst-italic">Last Day of Challenge: {{ challenge.last_day_of_the_challenge}}</p>
 
                   <h5 class="card-title">Details</h5>
-
+                  
+                  {% if challenge.category == 'challenge' %}
                   <div class="row">
                     <div class="col-lg-3 col-md-4 label ">Total Challenge Reward</div>
-                    <div class="col-lg-9 col-md-8">{{ challenge.challenge_reward }}</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ challenge.challenge_reward|intcomma }}</div>
                   </div>
-
                   <div class="row">
                     <div class="col-lg-3 col-md-4 label">Target Winners</div>
                     <div class="col-lg-9 col-md-8">{{ challenge.target_winners}}</div>
                   </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Top Winner Reward</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ top_reward|intcomma }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Second Winner Reward</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ second_reward|intcomma }}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Third Winner Reward</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ third_reward|intcomma}}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Fourth Winner Reward</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ fourth_reward|intcomma }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Fifth Winner Reward</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ fifth_reward|intcomma }}</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Sixth Winner Reward</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ sixth_reward|intcomma }}</div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Seventh Winner Reward</div>
+                    <div class="col-lg-9 col-md-8">KSh{{ seventh_reward|intcomma}}</div>
+                  </div>
+                  {% else %}
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Earn</div>
+                    <div class="col-lg-9 col-md-8">Ksh{{ challenge.pay_per_1000_views|intcomma}} for 1000 views</div>
+                  </div>
+                  <div class="row">
+                    <div class="col-lg-3 col-md-4 label">Maximum Payout</div>
+                    <div class="col-lg-9 col-md-8">Ksh{{ challenge.maximum_payout_per_creator|intcomma}} per creator</div>
+                  </div>
+
+                  {% endif %}
                   {% if challenge.video_url %}
                   <div class="row">
-                    <div class="col-lg-3 col-md-4 label">Video Link</div>
+                    <div class="col-lg-3 col-md-4 label">Use Video from this Link</div>
                     <div class="col-lg-9 col-md-8"><a href="{{ challenge.video_url}}">{{ challenge.video_url}}</a></div>
                   </div>
                   {% endif %}
@@ -134,7 +218,7 @@
                                 <th scope="col">Video Link</th>
                                 <th scope="col">Total Views</th>
                                 <th scope="col">Earned Points</th>
-                                <!-- <th scope="col">Potential Income</th> -->
+                                <th scope="col">Potential Income</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -142,9 +226,9 @@
                               <tr>
                                 <td>{{participant.creator.user.first_name}}</td>
                                 <th><a href="{{ participant.video_url}}">{{ participant.video_url}}</a></th>
-                                <th>{{ participant.total_views}}</th>
-                                <th>{{ participant.points_earned}}</th>
-                                <!-- <th>{{ participant.total_views}}</th> -->
+                                <th>{{ participant.total_views|intcomma}}</th>
+                                <th>{{ participant.points_earned|intcomma}}</th>
+                                <th>{% if challenge.category == 'challenge' %} {% if forloop.first %} Ksh{{ top_reward|intcomma}} {% elif forloop.counter == 2 %} Ksh{{second_reward|intcomma}} {% elif forloop.counter == 3 %} Ksh{{third_reward|intcomma}} {% elif forloop.counter == 4 %} Ksh{{fourth_reward}} {% elif forloop.counter == 5 %} Ksh{{fifth_reward|intcomma}} {% elif forloop.counter == 6 %} Ksh{{sixth_reward|intcomma}} {% elif forloop.counter == 7 %} Ksh{{seventh_reward|intcomma}}{% else %}0{% endif %} {% else %} Ksh{{participant.potential_earning|intcomma}} {% endif %}</th>
                                 
                               </tr>
                               {% endfor %}
@@ -177,7 +261,7 @@
                                 <th scope="col">Video Link</th>
                                 <th scope="col">Total Views</th>
                                 <th scope="col">Earned Points</th>
-                                <!-- <th scope="col">Potential Income</th> -->
+                                <th scope="col">Potential Income</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -185,9 +269,9 @@
                               <tr>
                                 <td>{{winner.creator.user.first_name}}</td>
                                 <th><a href="{{ winner.video_url}}">{{ winner.video_url}}</a></th>
-                                <th>{{ winner.total_views}}</th>
-                                <th>{{ winner.points_earned}}</th>
-                                <!-- <th>{{ winner.total_views}}</th> -->
+                                <th>{{ winner.total_views|intcomma}}</th>
+                                <th>{{ winner.points_earned|intcomma}}</th>
+                                <th>{% if challenge.category == 'challenge' %} {% if forloop.first %} Ksh{{ top_reward|intcomma}} {% elif forloop.counter == 2 %} Ksh{{second_reward|intcomma}} {% elif forloop.counter == 3 %} Ksh{{third_reward|intcomma}} {% elif forloop.counter == 4 %} Ksh{{fourth_reward}} {% elif forloop.counter == 5 %} Ksh{{fifth_reward|intcomma}} {% elif forloop.counter == 6 %} Ksh{{sixth_reward|intcomma}} {% elif forloop.counter == 7 %} Ksh{{seventh_reward|intcomma}}{% else %}0{% endif %} {% else %} Ksh{{winner.potential_earning|intcomma}} {% endif %}</th>
                                 
                               </tr>
                               {% endfor %}
@@ -221,4 +305,49 @@
     </section>
 
 </main><!-- End #main -->
+
+
+<script>
+  document.getElementById('downloadBtn').addEventListener('click', function () {
+      const downloadBtn = document.getElementById('downloadBtn');
+      const targetDiv = document.getElementById('couponCardId');
+
+      // Display download progress message
+      downloadBtn.innerText = 'Download in Progress...';
+      downloadBtn.disabled = true;
+
+      domtoimage.toPng(targetDiv, { 
+          quality: 1,
+          bgcolor: "white",
+          style: {
+              width: '280px',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #007bff, #ffcc00)',
+              padding: '10px',
+              color: 'white',
+              margin: 'auto',
+              textAlign: 'center',
+              fontFamily: 'Arial, sans-serif'
+          }
+      })
+      .then(function (dataUrl) {
+          const link = document.createElement('a');
+          link.download = `{{business.business_name}}-{{challenge.challenge_name}}-qr-code`;
+          link.href = dataUrl;
+          link.click();
+
+          // Reset download button text after download
+          downloadBtn.innerText = 'Download Qr-Code Image';
+          downloadBtn.disabled = false;
+      })
+      .catch(function (error) {
+          console.error('Oops, something went wrong!', error);
+
+          // Reset download button text if an error occurs
+          downloadBtn.innerText = 'Download Qr-Code Image';
+          downloadBtn.disabled = false;
+      });
+  });
+</script>
+
   {% endblock %}

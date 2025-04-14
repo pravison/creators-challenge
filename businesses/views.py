@@ -12,6 +12,13 @@ from creators.models import Creator, AccountMonetization
 from django.contrib.auth.decorators import login_required
 from .decorators import team_member_required
 from creators.functions import sendChallengeNotificationToCreators
+
+import qrcode
+from PIL import Image, ImageDraw, ImageFont
+
+
+from io import BytesIO
+import base64
 # Create your views here.
 
 @login_required(login_url="/login-user/")
@@ -210,6 +217,7 @@ def content_creation_jobs_requests(request, slug):
 @login_required(login_url="/login-user/")
 @team_member_required
 def create_store_challenge(request, slug):
+    challenge_type = request.GET.get('challenge_type') or ''
     business = Business.objects.filter(slug=slug).first()
     staff = Staff.objects.filter(user=request.user, business=business).first()
     if staff is None:
@@ -217,15 +225,19 @@ def create_store_challenge(request, slug):
         return redirect('profile')
     if request.method == "POST":
         description = request.POST.get('description')
-        category = request.POST.get('category') 
+        category = 'challenge'
+        if challenge_type == 'view reward program':
+            category = 'view reward program'
         challenge_name = request.POST.get('challenge_name')
         pay_per_1000_views = request.POST.get('pay_per_1000_views') or 0
         maximum_payout_per_creator = request.POST.get('maximum_payout_per_creator') or 0
-        budget = request.POST.get('budget')
+        budget = request.POST.get('budget') or 0
         rules = request.POST.get('rules')
+        instant_reward = request.POST.get('instant_reward')
         video_url = request.POST.get('video_url')
         last_day_of_the_challenge = request.POST.get('last_day_of_the_challenge')
-
+        # challenge_reward= pay_per_1000_views #for view reward programme
+        # if category == 'challenge':
         challenge_reward = int(int(budget) * 0.90) 
         challenge=Challenge.objects.create(
             business=business,
@@ -235,6 +247,7 @@ def create_store_challenge(request, slug):
             maximum_payout_per_creator=maximum_payout_per_creator,
             challenge_name = challenge_name,
             challenge_reward = challenge_reward,
+            instant_reward = instant_reward,
             description =description,
             video_url=video_url,
             rules=rules,
@@ -246,7 +259,8 @@ def create_store_challenge(request, slug):
         return redirect('store_challenges', slug)
     context = {
         'business': business,
-        'staff': staff
+        'staff': staff,
+        'challenge_type': challenge_type
     }
     return render(request, 'business/create-challenge.html', context)
 
@@ -275,25 +289,69 @@ def store_challenges(request, slug):
     }
     return render(request, 'business/store-challenges.html', context)
 
-@login_required(login_url="/login-user/")
+# @login_required(login_url="/login-user/")
 def view_store_challenge(request, slug):
     challenge_id = request.GET.get('challenge_id')
-    businesses = Business.objects.filter(owner=request.user)
     business = Business.objects.filter(slug=slug).first()
+    businesses = []
+    staff = []
+    if request.user.is_authenticated:
+        businesses = Business.objects.filter(owner=request.user)
+        staff = Staff.objects.filter(business=business, user=request.user)
     challenge = Challenge.objects.filter(id=challenge_id).first()
-    staff = Staff.objects.filter(business=business, user=request.user)
+    if not challenge:
+        messages.success(request, 'challenge was not found reselect again')
+        return redirect('challenge_opportunities')
     participants = ChallengeResult.objects.filter(challenge=challenge).order_by('-total_views')
     winners = participants
+    top_reward = 0
+    second_reward = 0
+    third_reward = 0
+    fourth_reward = 0
+    fifth_reward = 0
+    sixth_reward = 0
+    seventh_reward = 0
     if challenge.category == 'challenge':
         target_winners = challenge.target_winners
         winners = winners[:target_winners]
+        top_reward = int(0.49*int(challenge.challenge_reward))
+        second_reward = int(0.20*int(challenge.challenge_reward))
+        third_reward = int(0.15*int(challenge.challenge_reward))
+        fourth_reward = int(0.06*int(challenge.challenge_reward))
+        fifth_reward = int(0.05*int(challenge.challenge_reward))
+        sixth_reward = int(0.04*int(challenge.challenge_reward))
+        seventh_reward = int(0.03*int(challenge.challenge_reward))
+    else:
+        for obj in winners:
+            obj.potential_earning = int(((obj.total_views)/1000) * challenge.pay_per_1000_views)
+    qr_url = f"{request.scheme}://{request.get_host()}/business/{slug}/view-store-challenge/?challenge_id={challenge_id}"  # URL to lock the code
+
+    # Generate QR code
+    qr = qrcode.QRCode(version=1, box_size=4, border=1)
+    qr.add_data(qr_url)
+    qr.make(fit=True)
+    img = qr.make_image(fill='black', back_color='white')
+
+    # Save QR code to memory
+    buffer = BytesIO()
+    img.save(buffer, format='PNG')
+    qr_code_image = base64.b64encode(buffer.getvalue()).decode('utf-8')
+    buffer.close()
     context={
         'businesses': businesses,
         'staff': staff,
         'business': business,
         'challenge':challenge,
         'participants': participants,
-        'winners': winners
+        'winners': winners,
+        'qr_code_image': qr_code_image,
+        'top_reward': top_reward,
+        'second_reward': second_reward,
+        'third_reward': third_reward,
+        'fourth_reward': fourth_reward,
+        'fifth_reward': fifth_reward,
+        'sixth_reward': sixth_reward,
+        'seventh_reward': seventh_reward
     }
     return render(request, 'business/view-store-challenges.html', context)
 
@@ -303,14 +361,13 @@ def submit_challenge_video_url(request, id):
     challenge = Challenge.objects.filter(id=id).first()
     if not challenge:
         messages.success(request, 'challenge was not found reselect and try again ')
-        return redirect('profile')
+        return redirect('challenge_opportunities')
     if request.method == "POST":
         video_url = request.POST.get('video_url')
 
         creator = Creator.objects.filter(user=request.user).first()
         if not creator:
-            messages.success(request, 'you are not a creator click on become a creator to get an account ')
-            return redirect('profile')
+            creator = Creator.objects.create(user=request.user)
 
         monetization_progress = AccountMonetization.objects.filter(creator=creator).first()
         if monetization_progress is None:
@@ -321,9 +378,9 @@ def submit_challenge_video_url(request, id):
                 )
         else:
             if creator not in challenge.participants.all():
-                monetization_progress.challenge_participation_progress += 3.334
+                monetization_progress.challenge_participation_progress += 3
                 if monetization_progress.challenge_participation_progress < 50 :
-                    monetization_progress.average_percentage_progress += int(3.334)
+                    monetization_progress.average_percentage_progress += int(3)
                 monetization_progress.challenge_participation_update_date = today
                 monetization_progress.save()
 
@@ -341,6 +398,4 @@ def submit_challenge_video_url(request, id):
         'challenge':challenge
     }
     return render(request, 'business/submit-challenge-video-url.html', context)
-
-
 

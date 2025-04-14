@@ -1,0 +1,150 @@
+{% extends 'main.html' %}
+{% load static %}
+{% block title %} - Turn Every Diner into a brand ambassador. Get aunthetic social media buzz, more customers, and track results without wasting money on influencers.{% endblock %}
+{% block keyword %}{% endblock %}
+{% block description %}{% endblock %}
+
+{% block content %}
+
+<!-- Banner Area -->
+<section class="banner_area banner_a2">
+    <img src="{% static 'images/banner-bg-style-2.png' %}" alt="" class="banner_bg">
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+
+
+            {% endfor %}
+        {% endif %}
+        <h1 class="wow fadeIn" style="color: white; font-size: xxx-large;">Your Customers Are Your Best Marketers.</h1>
+        <h3 class="wow fadeIn" style="color: white; font-size: xxx-large;">Why Aren't You Paying Them?</h3>
+        <h3 class="wow fadeIn mt-3" data-wow-delay="0.2s">
+            <b>Turn Every Diner into a brand ambassador. Get aunthetic social media buzz, more customers, and track results without wasting money on influencers.</b>
+        </h3>
+        <h3 class="wow fadeIn mt-3">
+        <b style="color: white;">🚫 influencers charge ksh50,000 for one post... and your customers ignore it </b><br/>
+        <b style="color: white;">🚫 Your food is amazing, but no one is sharing it.</b><br/>
+        <b style="color: white;">🚫 You're stuck paying for ads that don't work.</b>
+        </h3>
+        <h3 class="wow fadeIn mt-3 mb-3"><b>With Challenge, Your customers film, post, and earn cash for every view they bring you. <br/>
+            You only pay when they succeed. Easy. Fair. Viral
+        </b></h3>
+        <a href="{% url 'register_user' %}?pricing_plan=fremium" class="theme_btn wow fadeIn" data-wow-delay="0.4s">Get Free Marketing - Only Pay for Results</a>
+    </div>
+</section>
+<!-- Banner Area -->
+<!-- How it works -->
+<section class="seo_insights" id="how-it-works">
+    <div class="row">
+        <div class="col-lg-5 recovered_img wow fadeInLeft mt-3">
+            <img src="{% static 'images/customer.png' %}" alt="">
+        </div>
+        <div class="col-lg-7">
+            <div class="insights_contant wow fadeInRight">
+                <h2>How We Turn Your Restaurant into a Social Media Sensatiom</h2>
+                <div class="list_line">
+                    <h2>Before Challenge</h2>
+                    <h6><b>😩You beg influencers. They overcharge. Their Posts feels fake</h6> <br/>
+                    <h6><b>😩 Customers eat, leave and forget</b></h6> <br/>
+                    <h6><b>😩 You guess what works. You waste money. </b></h6>
+                </div>
+                <div class="list_line">
+                    <h2>With Challenge</h2>
+                    <h4>📢Launch a Campaign</h4>
+                    <h6><b>Launch a Campaign. set prize(e.g post a video of our pizza - Win Ksh10,000. We handle the rest</b></h6>
+                    <h4>🎯Customers Post & Copmpete </h4>  
+                    <h6><b>Dinners film their meals share on instagram/tiktok and tag you. <br/>
+                    The more view they get, the more they earn</b></h6>
+                    <h4>💪You Grow. Only Pay for Sucess</h4>  
+                    <h6><b>We track every view, follower and customer they bring. You pay only for results </b></h6>
+                </div>
+                <b>No influencers. No upfront fees. Just real customers making you famous<b>
+            </div>
+        </div>
+        
+    </div>
+</section>
+<!-- End  -->
+
+<!-- benefits Section -->
+<section class="seo_insights" id="about">
+    <div class="row">
+        <div class="col-lg-7">
+            <div class="insights_contant wow fadeInRight">
+                <h2>We're Not Just a Tool. We're Your Marketing Patner.</h2>
+                <h3><b>Key Features</b></h3><br/>
+                <h3>📊 Analytics Dashboard</h3>
+                <p>see exactly which posts drive foot traffic, sales, and followers. No confusing graphs
+                </p>
+                <h3>☎ 24/7 Support</h3>
+                <p>Our team helps you deign viral campaigns(e.g #BestChipoChallenge). just ask!
+                </p>
+                <h3>🏆 Proven in Kenya</h3>
+                <p>Used by 20+ Nairobi Restaurants to get 3x more customers
+                </p>
+                
+            </div>
+        </div>
+        <div class="col-lg-5 recovered_img wow fadeInLeft">
+            <img src="{% static 'images/steptwofinal.webp' %}" alt="">
+        </div> 
+    </div>
+</section>
+<!-- End-->
+
+<section class="get_touch">
+    <div class="container">
+        <p>
+            <b>Start Free. No tech Skills. No Risk?</b><br/>
+            <b>✅Free setup</b><br/>
+            <b>✅No coding. No meetings. Just results</b><br/>
+            <b>⌛Only 10 spots left for Nairobi Restaurant</b>
+        </p>
+        <a href="{% url 'index' %}" class="theme_btn">Claim Your Free Trial — Only Pay If It Works</a>
+    </div>
+    <span></span>
+</section>
+
+<!-- FAQ -->
+<section class="faq_area">
+    <div class="container">
+        <h6>Frequently Asked Questions</h6>
+        
+        
+        <div class="row">
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How do I kick off a challenge with Challenge?</h4>
+                <p>
+                    Sign up as a brand/business, create your campaign using our simple setup process, and start receiving creative submissions immediately.
+                </p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>What types of content challenges can I create?</h4>
+                <p>Whether you're looking for video, graphics, or written content, our flexible platform lets you tailor each challenge to fit your business needs</p>
+            </div>
+            <div class="col-md-6 faq_item">
+                <h4>Can I invite specific creators?</h4>
+                <p>Yes, you have an option to open your challenge to our entire creative community or handpick the creators you want to work with.</p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How is compensation handled?</h4>
+                <p>With Challenge, you invest only in content that drives results. Our model ensures you pay solely for work that makes an impact.</p>
+            </div>
+            <!-- Faq Item -->
+            <div class="col-md-6 faq_item">
+                <h4>How can I track success of my challenge?</h4>
+                <p>Our analytics dashboard provides real-time insights into engagement and performance accross all submissions.</p>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- End FAQ  -->
+
+{% endblock %}

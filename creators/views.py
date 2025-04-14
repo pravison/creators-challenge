@@ -42,7 +42,7 @@ def add_creator(request):
             reffered_by=reffery
         )
         messages.success(request, 'Your Account Created Successfully!!!')  
-        return redirect('profile')
+        return redirect('challenge_opportunities')
     context = {
         'refferal_code': refferal_code
     }
@@ -134,6 +134,26 @@ def creator_profile(request, id):
     if creator is None:
         messages.success(request, 'Creator account not found')
         return redirect('profile')
+    if creator_id != '':
+        if job_id != '':
+            job = ContentCreationJob.objects.filter(id=job_id, position_filled=False).first()
+            if job is None:
+                messages.success(request, "Job applied is unavailable")
+            if JobApplication.objects.filter(job=job, creator=creator).exists():
+                messages.success(request, "Request Already send")
+            else:
+                JobApplication.objects.create(
+                    job=job,    
+                    business = job.business, 
+                    creator=creator
+                    )
+                messages.success(request, "Congratulations your hiring request has been successfully send to the creator")
+            return redirect('creator_profile', creator.id)
+        else:
+            request.session['creator_id'] = creator_id
+            messages.success(request, "Select The business that wants to hire creator")
+            return redirect('hire_creator')
+    
 
     if job_id != '' and creator_id != '':
         job = ContentCreationJob.objects.filter(id=job_id, position_filled=False).first()

@@ -234,7 +234,7 @@
                 </li>
 
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#Points">Points</button>
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#Points">Your Participations</button>
                 </li>
 
                 <li class="nav-item">
@@ -282,7 +282,9 @@
                                 </tbody>
                               </table>
                               <!-- End Table with stripped rows -->
-                
+                              <div class="text-center">
+                              <a href="{% url 'challenge_opportunities' %}" class="btn btn-primary col-xl-8">View More</a>
+                              </div>
                             </div>
                           </div>
                 
@@ -372,7 +374,7 @@
               
                         <div class="card">
                           <div class="card-body overflow-auto">
-                            <h5 class="card-title">Points Earned</h5>
+                            <h5 class="card-title">Challenges You've Participated In</h5>
                             <div class="alert alert-warning alert-dismissible fade show" role="alert">
                               for every view you get from challenges you participate in  you earn one point 
                               <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -385,17 +387,21 @@
                             <table class="table datatable">
                               <thead>
                                 <tr>
+                                  <th scope="col">Business</th>
                                   <th scope="col">Challenge</th>
+                                  <th scope="col">Your Video</th>
                                   <th scope="col">Total Views</th>
                                   <th scope="col">Points Earned</th>
                                 </tr>
                               </thead>
                               <tbody>
-                                {% for point in points %}
+                                {% for challenge in challenge_participated_in %}
                                 <tr>
-                                  <td>{{ point.challenge}}</td>
-                                  <th>{{point.total_views}}</th>
-                                  <th>{{point.points_earned}}</th>
+                                  <td>{{ challenge.challenge.business.business_name}}</td>
+                                  <td><a href="{% url 'view_store_challenge' challenge.challenge.business.slug %}?challenge_id={{challenge.challenge.id}}" style="cursor: pointer">{{ challenge.challenge.challenge_name}}</a></td>
+                                  <td><a href="{{ challenge.video_url}}" style="cursor: pointer">{{ challenge.video_url}}</a></td>
+                                  <th>{{challenge.total_views}}</th>
+                                  <th>{{challenge.points_earned}}</th>
                                   
                                 </tr>
                                 {% endfor %}

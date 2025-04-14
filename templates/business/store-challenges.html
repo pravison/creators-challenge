@@ -57,6 +57,7 @@
                     <th scope="col">Winners</th>
                     <th scope="col">Date Created</th>
                     <th scope="col">Challenge Closed</th>
+                    <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -71,6 +72,7 @@
                     <td scope="row">{{challenge.winners.count}}</td>
                     <td scope="row">{{challenge.date_created}}</td>
                     <td scope="row"><a href="{% url 'store_challenges' business.slug %}?update={{challenge.id}}" title="update"> {% if challenge.closed %}Yes {% else %}No {%  endif %}</a></td>
+                    <td scope="row"><span class="badge bg-primary"><a href="{% url 'view_store_challenge' business.slug %}?challenge_id={{challenge.id}}" style="cursor: pointer; color: white;">View</a></span></td>
                   </tr>
                   {% endfor %}
                   

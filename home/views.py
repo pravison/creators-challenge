@@ -27,6 +27,16 @@ def business_landing_page(request):
        'business':business
     }
     return render(request, 'home/business.html', context)
+def business_landing_page_2(request):
+    # landing page for businesses 
+    # selling bussiness to encourage their customer to create video for them 
+    business = 'business'
+    print(business)
+    context = {
+       'business':business
+    }
+    return render(request, 'home/business-customers.html', context)
+
 
 def pricing(request):
     return render(request, 'home/pricing.html')
@@ -36,6 +46,23 @@ def generate_unique_refferal_code():
         code = uuid.uuid4().hex[:4]
         if not RefferralCode.objects.filter(code=code).exists():
             return code
+
+
+@login_required(login_url="/login-user/")
+def challenge_opportunities(request):
+    creator = Creator.objects.filter(user=request.user).first()
+    challenges = Challenge.objects.filter(closed=False)
+
+    if creator is None:
+        return redirect('profile')
+
+    
+    context = {
+        'challenges' : challenges,
+        'creator': creator,
+    }
+    return render(request, 'home/challenge-opportunities.html', context)
+
     
 @login_required(login_url="/login-user/")
 def profile(request):
@@ -46,11 +73,11 @@ def profile(request):
     creator = Creator.objects.filter(user=request.user).first()
     staff_businesses = Staff.objects.filter(user=request.user)
     challenges = Challenge.objects.filter(closed=False)
-    points = ChallengeResult.objects.filter(creator=creator)
+    
     businesses_reffered = Business.objects.filter(reffered_by=request.user)
     creators_reffered = Creator.objects.filter(reffered_by=request.user)
     refferal_code = RefferralCode.objects.filter(user=request.user).first()
-
+    challenge_participated_in = None
     job_requests = None
     challenges_count = 0
     businesses = []
@@ -58,6 +85,7 @@ def profile(request):
     days_remaining = 29
     challenges_remaining=14
     if creator:
+        challenge_participated_in = ChallengeResult.objects.filter(creator=creator)
         job_requests =JobApplication.objects.filter(creator=creator, accepted_by_business=False).count()
         businesses = Business.objects.filter(challenges__participants=creator).distinct().prefetch_related("challenges") #business user has participated in their challange
         challenges_count = Challenge.objects.filter(closed=False, participants=creator).count()
@@ -71,16 +99,16 @@ def profile(request):
                 )
         else:
             if monetization_progress.login_update_date < today and not monetization_progress.monetizable:
-                monetization_progress.percentage_login_progress += 1.667
+                monetization_progress.percentage_login_progress += 2
                 if monetization_progress.percentage_login_progress < 50 :
-                    monetization_progress.average_percentage_progress += int(1.667)
+                    monetization_progress.average_percentage_progress += int(2)
                 monetization_progress.login_update_date = today
                 monetization_progress.save()
             
-            days_remaining = int((50-monetization_progress.percentage_login_progress)/1.667)
+            days_remaining = int((50-monetization_progress.percentage_login_progress)/2)
             if monetization_progress.percentage_login_progress >= 50:
                 days_remaining =0
-            challenges_remaining=int((50-monetization_progress.challenge_participation_progress)/3.334)
+            challenges_remaining=int((50-monetization_progress.challenge_participation_progress)/3)
             if monetization_progress.challenge_participation_progress >= 50:
                 challenges_remaining =0
 
@@ -105,7 +133,7 @@ def profile(request):
             last_update_instance.save()
 
         if MonthlyRefferalPointsUpdate.objects.filter(creator = creator).exists():
-            last_update_instance = MonthlyRefferalPointsUpdate.objects.filter(creator = creator).first()
+            last_update_instance = MonthlyRefferalPointsUpdate.objects.filter(creator=creator).order_by('id').last()
             if last_update_instance.last_updated < today - timedelta(days=30):
                 total_creators_you_reffered = Creator.objects.filter(reffered_by=request.user).count()
                 total_points_earned = total_creators_you_reffered* 10000 # points earned from all creators you reffered
@@ -173,7 +201,7 @@ def profile(request):
         'businesses': businesses,
         'creator': creator,
         'challenges_count': challenges_count,
-        'points': points,
+        'challenge_participated_in': challenge_participated_in,
         'businesses_reffered': businesses_reffered,
         'creators_reffered': creators_reffered,
         'refferal_code': refferal_code,
@@ -223,7 +251,7 @@ def verify_reset_code(request):
             return redirect('verify_reset_code')
         code = form.cleaned_data['code']
         try:
-            reset_code = PasswordResetCode.objects.filter(code=code, is_valid=True).order_by('-created_at').first()
+            reset_code = PasswordResetCode.objects.filter(code=code, is_valid=True).order_by('created_at').first()
             if reset_code is None:
                 messages.error(request, 'Counter check your code seems its incorrect')
                 return redirect('verify_reset_code')
@@ -248,11 +276,15 @@ def verify_reset_code(request):
 def reset_password(request):
     user_id = request.session.get('password_reset_user_id')
     if not user_id:
+        messages.error(request, 'There was an error proccessing your application, try again')
         return redirect('request_reset_code')
     
     user = User.objects.get(id=user_id)
     try:
         reset_code = PasswordResetCode.objects.filter(user=user).order_by('-created_at').first()
+        if reset_code is None:
+            messages.error(request, 'There was an error proccessing your application, try again')
+            return redirect('request_reset_code')
         if reset_code.is_expired():
             # If the code is expired or invalid, redirect to request a new one
             reset_code.is_valid = False
@@ -361,7 +393,7 @@ def login_user(request):
             messages.success(request, "You Have Been Logged In!")
             if next != '':
                 return redirect(next)
-            return redirect('profile')
+            return redirect('challenge_opportunities')
         else:
             messages.success(request, "There Was An Error Logging In, Please Try Again...")
             return redirect('login_user')
@@ -406,25 +438,32 @@ def jobs(request):
 def creators(request):
     job_id = request.GET.get('job_id', '')
     creator_id = request.GET.get('creator_id', '')
-    creators_with_surveys = Creator.objects.prefetch_related('survey').all()
+    creators_with_surveys = Creator.objects.filter(willing_to_work=True).prefetch_related('survey').all()
 
-    if job_id != '' and creator_id != '':
-        job = ContentCreationJob.objects.filter(id=job_id, position_filled=False).first()
-        if job is None:
-            messages.success(request, "Job applied is unavailable")
-        creator = Creator.objects.filter(id=creator_id).first()
-        if creator is None:
-            messages.success(request, "Creator could not be found")
-            messages.success(request, " try applying again")
-        if JobApplication.objects.filter(job=job, creator=creator).exists():
-            messages.success(request, "Request Already send")
+    if creator_id != '':
+        if job_id != '':
+            job = ContentCreationJob.objects.filter(id=job_id, position_filled=False).first()
+            if job is None:
+                messages.success(request, "Job applied is unavailable")
+            creator = Creator.objects.filter(id=creator_id).first()
+            if creator is None:
+                messages.success(request, "Creator could not be found")
+                messages.success(request, " try applying again")
+            if JobApplication.objects.filter(job=job, creator=creator).exists():
+                messages.success(request, "Request Already send")
+            else:
+                JobApplication.objects.create(
+                    job=job,
+                    business = job.business, 
+                    creator=creator
+                    )
+                messages.success(request, "Congratulations your hiring request has been successfully send to the creator")
+            return redirect('creators')
         else:
-            JobApplication.objects.create(
-                job=job,
-                business = job.business, 
-                creator=creator
-                )
-            messages.success(request, "Congratulations your hiring request has been successfully send to the creator")
+            request.session['creator_id'] = creator_id
+            messages.success(request, "Select The business that wants to hire creator")
+            return redirect('hire_creator')
+    
 
     context = {
         'creators_with_surveys': creators_with_surveys,
@@ -432,6 +471,7 @@ def creators(request):
     }
     return render(request, 'home/creators.html', context)
 
+@login_required(login_url="/login-user/")
 def job_requests(request):
     job_application_id = request.GET.get('job_application_id', '')
     creator = Creator.objects.filter(user=request.user).first()
@@ -455,4 +495,64 @@ def job_requests(request):
         'jobs': jobs,
         'creator':creator
     }
-    return render(request, 'home/job-requests.html', context)   
+    return render(request, 'home/job-requests.html', context)  
+
+@login_required(login_url="/login-user/")
+def hire_creator(request):
+    staff_businesses = Staff.objects.filter(user=request.user)
+    selected_staff_business = None
+    jobs_available = None
+    selected_id = request.GET.get('selected_id') or ''
+    job_id = request.GET.get('job_id') or ''
+    creator_id = request.session.get('creator_id') or ''
+    if creator_id == '':
+        messages.success(request, "There was an error proccessing your request!")
+        messages.success(request, "please reselect creator!")
+        return redirect('creators') 
+    creator = Creator.objects.filter(id=creator_id).first()
+    if creator is None:
+        messages.success(request, "There was an error proccessing your request!")
+        messages.success(request, "please reselect creator!")
+        return redirect('creators')
+
+    if staff_businesses is None:
+        messages.success(request, "You must create  a business account to be able to hire a creator!")
+        messages.success(request, "to create a business account click create business account on your navigation menu!")
+        return redirect('profile')
+    if selected_id !='':
+        selected_staff_business = staff_businesses.filter(id=selected_id).first()
+        if selected_staff_business is None:
+            messages.success(request, "There was an error processing your request!")
+            messages.success(request, "please retry!")
+            return redirect('hire_creator')
+        jobs_available = ContentCreationJob.objects.filter(business=selected_staff_business.business, position_filled=False) 
+        if not jobs_available:
+            messages.success(request, "No open positions!")
+            messages.success(request, "please create new job positions!")
+            return redirect('dashboard', selected_staff_business.business.slug)
+    if creator and job_id !='':
+        job = ContentCreationJob.objects.filter(id=job_id, position_filled=False).first()
+        if job is None:
+            messages.success(request, "Job applied is unavailable")
+            messages.success(request, "pleease repeat the proceess")
+            return redirect('hire_creator')
+        else:
+            if JobApplication.objects.filter(job=job, creator=creator).exists():
+                messages.success(request, "Request Already send")
+            else:
+                JobApplication.objects.create(
+                    job=job,
+                    business = job.business, 
+                    creator=creator
+                    )
+                messages.success(request, "Congratulations your hiring request has been successfully send to the creator")
+
+        return redirect('creators')
+
+    context = {
+        'staff_businesses': staff_businesses,
+        'selected_staff_business': selected_staff_business,
+        'jobs_available': jobs_available,
+        'creator':creator
+    }
+    return render(request, 'home/hire-creator.html', context)   

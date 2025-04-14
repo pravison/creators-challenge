@@ -3,10 +3,12 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('business-landing-page/', views.business_landing_page, name='business_landing_page'),
+    path('business-home-page/', views.business_landing_page_2, name='business_landing_page_2'),
     path('register-user/', views.register_user, name='register_user'),
     path('login-user/', views.login_user, name='login_user'),
     path('logout-user/', views.logout_user, name='logout_user'),
     path('pricing/', views.pricing, name='pricing'),
+    path('challenge-opportunities/', views.challenge_opportunities, name='challenge_opportunities'),
     path('profile/', views.profile, name='profile'),
     # path('<slug:slug>/landing-page/', views.audience_landing_page, name='audience_landing_page'),
     # path('subscribe-newsleter/', views.subscribe, name='subscribe'),
@@ -21,5 +23,6 @@ urlpatterns = [
     path('creators/', views.creators, name='creators'),
     path('jobs/', views.jobs, name='jobs'),
     path('job-requests/', views.job_requests, name='job_requests'),
+    path('hire-creator/', views.hire_creator, name='hire_creator'),
     ]
    

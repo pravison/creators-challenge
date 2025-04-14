@@ -47,7 +47,7 @@
     {% else %}
     <div class="d-flex align-items-center justify-content-between">
       <a href="{% url 'profile' %}" class="logo d-flex align-items-center">
-        <span class="d-none d-lg-block">{{ request.user.first_name }} {{ request.user.last_name }}</span>
+        <span class="d-none d-lg-block">{% if business %}{{ business.business_name }} {% else %} {{ request.user.first_name }} {{ request.user.last_name }} {% endif %}</span>
       </a>
       <i class="bi bi-list toggle-sidebar-btn"></i>
     </div><!-- End Logo -->
@@ -91,13 +91,21 @@
             <li>
               <hr class="dropdown-divider">
             </li>
+            {% if request.user.is_authenticated %}
             <li>
               <a class="dropdown-item d-flex align-items-center" href="{% url 'logout_user' %}">
                 <i class="bi bi-box-arrow-right"></i>
                 <span>Sign Out</span>
               </a>
             </li>
-
+            {% else %}
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{% url 'login_user' %}">
+                <i class="bi bi-box-arrow-left"></i>
+                <span>Sign In</span>
+              </a>
+            </li>
+            {% endif %}
           </ul><!-- End Profile Dropdown Items -->
         </li><!-- End Profile Nav -->
 
@@ -105,7 +113,7 @@
     </nav><!-- End Icons Navigation -->
 
   </header><!-- End Header -->
-
+  {% if request.user.is_authenticated %}
   <!-- ======= Sidebar ======= -->
   <aside id="sidebar" class="sidebar">
 
@@ -154,8 +162,13 @@
             </a>
           </li>
           <li>
-            <a href="{% url 'create_store_challenge' business.slug %}">
-              <i class="bi bi-circle"></i><span>Create Challenge</span>
+            <a href="{% url 'create_store_challenge' business.slug %}?challenge_type=challenge">
+              <i class="bi bi-circle"></i><span>Add a Challenge</span>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'create_store_challenge' business.slug %}?challenge_type=view reward program">
+              <i class="bi bi-circle"></i><span>Add View Reward Programme</span>
             </a>
           </li>
         </ul>
@@ -219,7 +232,7 @@
     </ul>
 
   </aside><!-- End Sidebar-->
-
+  {% endif %}
   {% block content %}
   {% endblock %}
 

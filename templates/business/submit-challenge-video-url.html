@@ -21,15 +21,19 @@
                 {% endif %}
                 <form class="from_main" action="{% url 'submit_video_url' challenge.id %}" method="POST">
                     {% csrf_token %}
-                    
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        Create a video post it on your social media
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                        copy the link to the video and paste it here
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                     <div class="form-group">
                         <input type="url" name="video_url" class="form-control mb-1" placeholder=" provide a link to the video you've created for the challenge" required>
+                        
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            provide a link to the video you've created for the challenge
-                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                        </div>
-                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            makesure you have gone through the challenge brief and rules
+                            makesure you have gone through the challenge brief and guidelines
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>

@@ -57,7 +57,7 @@
                     <th scope="row">{{job.job.job_type }}</th>
                     <td scope="row">{{job.job.monthly_pay }}</td>
                     <td scope="row">{% if job.accepted_by_business and job.accepted_by_creator %}{{job.creator.phone_number }}{% else %} 254xxxxxxxx {% endif %}</td>
-                    <td  scope="row">{% if not job.accepted_by_creator %} awiting creator acceptance {% elif not job.accepted_by_business %}<a href="{% url 'content_creation_jobs_requests' business.slug %}?job_application_id={{job.id}}" style="cursor: pointer">Approve</a>{% else %} approved {% endif %}</td>
+                    <td  scope="row">{% if not job.accepted_by_creator %}<span class="badge bg-secondary"> awaiting creator acceptance </span>{% elif not job.accepted_by_business %}<a href="{% url 'content_creation_jobs_requests' business.slug %}?job_application_id={{job.id}}" class="btn btn-warning" style="cursor: pointer">Approve</a>{% else %} <span class="btn btn-success">approved</span> {% endif %}</td>
                   </tr>
                   {% endfor %}
                   

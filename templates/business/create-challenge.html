@@ -9,65 +9,101 @@
     <div class="row" style="justify-content: center;">
         
         <div class="col-lg-6 " >
-            <div class="row" style="justify-content: center;"><b>Create Challenge</b></div>
+            <div class="row text-center"><b>Create{% if challenge_type == 'view reward program' %} View Reward Program {% else %} Challenge {% endif %}</b></div>
             <div class="from_area">
-                {% if messages %}
+                <form class="from_main" action="{% url 'create_store_challenge' business.slug %}?challenge_type={{challenge_type}}" method="POST">
+                    {% if messages %}
                     {% for message in messages %}
                     <div class="alert alert-warning alert-dismissible fade show" role="alert">
                         {{ message }}
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                     {% endfor %}
+                {% else %}
+                {% if challenge_type == 'view reward program' %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    View Reward Program is where you pay creators per the number of views they get
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Good For mass distribution of  best content
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% else %}
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Challenge is where you reward best performing creators
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    Good For experimenting content ideas
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
                 {% endif %}
-                <form class="from_main" action="{% url 'create_store_challenge' business.slug %}" method="POST">
+                {% endif %}
+
                     {% csrf_token %}
                     <div class="form-group">
-                        <input type="text" name="challenge_name" class="form-control" placeholder="Challenge Name" required>
+                        <input type="text" name="challenge_name" class="form-control" placeholder=" {% if challenge_type == 'view reward program' %}Title of Your View Reward Programme {% else %}Challenge  Name{% endif %}" required>
                     </div>
+                    {% if challenge_type == 'view reward program' %}
                     <div class="form-group">
-                        <select class="form-control" name="category" style="height: 55px;" placeholder="Select Challenge category" required>
-                            <option value="">Select Category</option>
-                            <option value="challenge">challenge (here you only reward top performing creators only)</option>
-                            <option value="view reward program">view reward program (here you reward creators depending on the views they get) </option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <input type="number" name="pay_per_1000_views" class="form-control" placeholder="How much will you pay for 1000 views ">
+                        <input type="number" name="pay_per_1000_views" class="form-control" placeholder="How much will you pay for 1000 views " required>
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            How much will you pay for 1000 views ex. you can pay 50 for 1000 views (all amount stated will be in kenyan currency ) <br/> leave it empty if you selected your category to be challenge
+                            How much will you pay for 1000 views ex. you can pay 50 for 1000 views 
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <input type="number" name="maximum_payout_per_creator" class="form-control" placeholder="Set your Maximun payout per creator ">
+                        <input type="number" name="maximum_payout_per_creator" class="form-control" placeholder="Set your Maximun payout per creator " required>
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            Set your Maximun payout per creator if you selected your category as view reward program else leave it empty 
+                            Maximun payout per creator is the maximum amount you will pay the creator irregardless of the views they get
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
+                    {% endif %}
                     <div class="form-group">
                         <textarea type="text" name="description" class="form-control" placeholder="Write your Brief: tell us more about the challenge and your businesss" required></textarea>
                     </div>
+                    {% if challenge_type == 'view reward program' %}
                     <div class="form-group">
-                        <input type="url" name="video_url" class="form-control" placeholder="(optional) provide a link to your video you would want craetors to recreate their videos from">
+                        <input type="url" name="video_url" class="form-control" placeholder=" provide a link to your video you would want craetors to recreate their videos from">
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                            (optional) provide a link to your video you would want creators to recreate their videos from
+                            provide a link to your video you would want creators to clip and distribute
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="form-group">
+                        <input type="url" name="video_url" class="form-control" placeholder="(optional) provide a link to your video you would want creators to recreate their videos from">
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            (optional) provide a link to your video you would want creators to recreate from
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    </div>
+                    {% endif %}
+                    <div class="form-group">
+                        <input type="number" name="budget" class="form-control" placeholder="Set your Budget " required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <textarea type="text" name="rules" class="form-control" placeholder="outline guidelines that you want video submitted to follow" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" name="instant_reward" class="form-control" placeholder="immediate reward for participating (optional)" >
+                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                            (optional) encourage your customers to participate by giving them an immediate reward for participating <br/>
+                            ex. a fully paid cup of coffee 
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     </div>
                     <div class="form-group">
-                        <input type="number" name="budget" class="form-control" placeholder="Set your Budget " required>
-                    </div>
-                    <div class="form-group">
-                        <textarea type="text" name="rules" class="form-control" placeholder="outline guidelines that you want video submitted to follow" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label>last day of the challenge </label>
+                        <label>last day of the {% if challenge_type == 'view reward program' %} program {% else %} challenge {% endif %} </label>
                         <input type="date" name="last_day_of_the_challenge" class="form-control" placeholder="last day of the challenge " required>
                     </div>
                     
                     <div class="form-group m-0 btn_g">
-                        <button class="theme_btn btn" id="registerButton" type="submit" >Create Challenge</button>
+                        <button class="theme_btn btn" id="registerButton" type="submit" >Submit</button>
                     </div>
                 </form>
         </div>
@@ -88,7 +124,7 @@
                 loginButton.disabled = true;
 
                 // Update the button text
-                loginButton.textContent = "creating challenge...";
+                loginButton.textContent = "submition in progress...";
             });
         }
     });

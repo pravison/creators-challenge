@@ -14,7 +14,7 @@ class SocialMediaAccount(models.Model):
     
 class Creator(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    phone_number= models.CharField(max_length=25, help_text='whatsapp phone number written in international format withou plus sign ex. 254740562740')
+    phone_number= models.CharField(max_length=25, blank=True, null=True, help_text='whatsapp phone number written in international format withou plus sign ex. 254740562740')
     total_followers = models.IntegerField(default=0, help_text='accross all your social platforms')
     total_points = models.IntegerField(default=0)
     brief_bio = HTMLField(blank=True)

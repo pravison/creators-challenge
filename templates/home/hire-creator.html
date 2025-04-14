@@ -1,0 +1,80 @@
+{% extends 'business/main.html' %}
+{% load static %}
+{% load custom_filters %}
+{% load humanize%}
+{% block title %} {{ request.user.first_name }} {{ request.user.last_name }} {% endblock%}
+{% block content %}
+<main id="main" class="main">
+
+  <div class="pagetitle">
+    <h1>{{ creator.user.first_name }} {{ creator.user.last_name }}</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'profile' %}">Your Profile</a></li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+  <section class="section">
+    <div class="row align-items-top">
+        
+        <div class="card">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              <h2>Hire {{ creator.user.first_name }} {{ creator.user.last_name }}</h2>
+              <span>who has {{ creator.total_followers|intcomma }} followers</span>
+          </div>
+
+        </div>
+        {% if messages %}
+            {% for message in messages %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+            {% endfor %}
+        {% endif %}
+        {% if selected_staff_business %}
+        <div class="card">
+            <div class="card-body profile-card pt-0 d-flex flex-column align-items-center">
+              <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                you have selected
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+              <h2>{{ selected_staff_business.business.business_name }}</h2>
+              <a class="icon" href="{% url 'hire_creator' %}">or select another business</a>
+          </div>
+
+        </div>
+          <div class="alert alert-warning alert-dismissible fade show" role="alert">
+              Now select the position you want to hire creator for
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% for job in  jobs_available %}
+          <div class="card ms-1">
+              <div class="card-body profile-card pt-0 d-flex flex-column align-items-center">
+                <a class="icon" href="{% url 'hire_creator' %}?job_id={{job.id}}">select</a>
+                <h2><a href="{% url 'hire_creator' %}?job_id={{job.id}}" style="color: #000;;">{{ job.job_type }}</a></h2><span>for a monthly pay of {{ job.monthly_pay|intcomma }}</span>
+            </div>
+          </div>
+        {% endfor %}
+        </div>
+        {% else %}
+        <div class="col-xl-4">
+        <!-- Card with an image on top -->
+        {% for staff in  staff_businesses %}
+        <div class="card">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+              <a class="icon" href="{% url 'hire_creator' %}?selected_id={{staff.id}}">select</a>
+              <h2><a href="{% url 'hire_creator' %}?selected_id={{staff.id}}" style="color: #000;;">{{ staff.business.business_name }}</a></h2>
+          </div>
+
+        </div>
+        {% endfor %}
+        </div>
+        {% endif %}
+
+    </div>
+  </section>
+
+</main><!-- End #main -->
+{% endblock %}
